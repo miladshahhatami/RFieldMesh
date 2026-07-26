@@ -1,0 +1,43 @@
+{
+  "generation": {
+    "source_path": "../Job-1.inp",
+    "output_path": "unused_in_batch.inp",
+    "part_name": "Part-1",
+    "set_name": "Set-1",
+    "instance_name": null,
+    "variables": [
+      {
+        "property_kind": "youngs_modulus",
+        "moments": {
+          "mean": 20000000.0,
+          "standard_deviation": 6000000.0,
+          "unit_label": "Pa"
+        },
+        "distribution": "lognormal",
+        "correlation": {
+          "model": "exponential",
+          "scales": [
+            10.0,
+            1.0
+          ]
+        },
+        "bounds": null,
+        "seed": null
+      }
+    ],
+    "first_seed": 1403,
+    "realization_index": 0,
+    "seed_strategy": "linear",
+    "algorithm": "auto",
+    "mapping": "auto",
+    "name_prefix": "RFM",
+    "overwrite": false,
+    "manifest_path": null
+  },
+  "output_directory": "generated_batch",
+  "realization_count": 10,
+  "start_index": 0,
+  "filename_template": "Job-1_RFEA_{index:04d}_seed{seed}.inp",
+  "summary_path": null,
+  "continue_on_error": false
+}

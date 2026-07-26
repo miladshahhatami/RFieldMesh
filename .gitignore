@@ -1,0 +1,57 @@
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Testing and analysis caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Virtual environments
+.venv/
+.venv-*/
+venv/
+env/
+
+# Python packaging outputs
+build/
+dist/
+dist-*/
+*.egg-info/
+.eggs/
+
+# Windows application builds
+release-windows/
+
+# Abaqus-generated analysis files
+*.odb
+*.lck
+*.msg
+*.sta
+*.dat
+*.log
+*.sim
+*.com
+*.prt
+*.mdl
+*.stt
+*.res
+*.pac
+*.sel
+
+# Editors and operating systems
+.vscode/
+.idea/
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+~$*

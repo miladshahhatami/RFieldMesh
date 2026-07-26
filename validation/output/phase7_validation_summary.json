@@ -1,0 +1,63 @@
+{
+  "application_version": "1.0.0",
+  "artifacts": {
+    "rfieldmesh-1.0.0-py3-none-any.whl": "410c6a858d6417a67874265ac776a1622bcf50fe425621ff42d969bb2831af4c",
+    "rfieldmesh-1.0.0.tar.gz": "1420d2cb01aa6f8d4cc7b2176431af10c6f49dc14c4c9f7fb6d7d74e156e9ee8"
+  },
+  "checks": [
+    {
+      "check_id": "stable_version",
+      "details": "pyproject version is 1.0.0.",
+      "passed": true
+    },
+    {
+      "check_id": "citation_version",
+      "details": "CITATION.cff version is '1.0.0'.",
+      "passed": true
+    },
+    {
+      "check_id": "changelog_entry",
+      "details": "The stable changelog entry is present.",
+      "passed": true
+    },
+    {
+      "check_id": "documentation_inventory",
+      "details": "All required stable documents are present.",
+      "passed": true
+    },
+    {
+      "check_id": "large_mesh_disclosure",
+      "details": "Dense KL and structured spectral applicability limits are disclosed.",
+      "passed": true
+    },
+    {
+      "check_id": "promotion_provenance",
+      "details": "Promotion source and scientific-core freeze are recorded.",
+      "passed": true
+    },
+    {
+      "check_id": "native_attestation_label",
+      "details": "Native validation is labelled as user attestation, not machine evidence.",
+      "passed": true
+    },
+    {
+      "check_id": "wheel_built",
+      "details": "Expected wheel: rfieldmesh-1.0.0-py3-none-any.whl.",
+      "passed": true
+    },
+    {
+      "check_id": "source_distribution_built",
+      "details": "Expected source distribution: rfieldmesh-1.0.0.tar.gz.",
+      "passed": true
+    }
+  ],
+  "executed_at_utc": "2026-07-25T22:52:39.144955+00:00",
+  "external_publication": {
+    "github": "not_performed",
+    "pypi": "not_performed",
+    "zenodo": "not_performed"
+  },
+  "native_validation_status": "user_attested_phase6_completion",
+  "schema_version": "1.0",
+  "source_release_ready": true
+}

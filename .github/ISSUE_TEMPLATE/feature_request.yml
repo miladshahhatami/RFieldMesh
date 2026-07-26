@@ -1,0 +1,24 @@
+name: Feature request
+description: Propose a scientifically defined extension
+title: "[Feature] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: use_case
+    attributes:
+      label: Scientific or engineering use case
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Requested behavior
+    validations:
+      required: true
+  - type: textarea
+    id: semantics
+    attributes:
+      label: Statistical and compatibility considerations
+      description: State expected correlation, marginal, mapping, mesh, or Abaqus semantics.
+    validations:
+      required: true

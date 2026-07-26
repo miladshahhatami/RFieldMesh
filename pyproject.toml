@@ -1,0 +1,134 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "rfieldmesh"
+version = "1.0.0"
+description = "Reproducible spatial random fields for finite-element meshes"
+readme = "README.md"
+requires-python = ">=3.12,<3.15"
+license = { file = "LICENSE" }
+authors = [
+  { name = "Milad Shah Hatami" },
+]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: BSD License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Topic :: Scientific/Engineering",
+]
+dependencies = [
+  "numpy>=2.0,<3",
+  "pydantic>=2.8,<3",
+  "scipy>=1.13,<2",
+  "typer>=0.16,<1",
+]
+
+[project.scripts]
+rfieldmesh = "rfieldmesh.cli.app:main"
+
+[project.gui-scripts]
+rfieldmesh-gui = "rfieldmesh.gui.application:main"
+
+[project.optional-dependencies]
+visualization = [
+  "plotly>=6,<7",
+]
+desktop = [
+  "plotly>=6,<7",
+  "PySide6>=6.8,<7",
+]
+packaging = [
+  "pip-licenses>=5,<6",
+  "pyinstaller>=6.16,<7",
+]
+validation = [
+  "plotly>=6,<7",
+]
+dev = [
+  "build>=1.2,<2",
+  "hypothesis>=6.100,<7",
+  "mypy>=1.11,<2",
+  "plotly>=6,<7",
+  "PySide6>=6.8,<7",
+  "pytest>=8.2,<9",
+  "pytest-cov>=5,<7",
+  "ruff>=0.9,<1",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/rfieldmesh"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "/CHANGELOG.md",
+  "/CITATION.cff",
+  "/CODE_OF_CONDUCT.md",
+  "/CONTRIBUTING.md",
+  "/KNOWN_LIMITATIONS.md",
+  "/LICENSE",
+  "/README.md",
+  "/RELEASE_NOTES_1.0.0.md",
+  "/RELEASE_NOTES_PHASE4.md",
+  "/RELEASE_NOTES_PHASE5.md",
+  "/RELEASE_NOTES_PHASE6.md",
+  "/SECURITY.md",
+  "/.github",
+  "/docs",
+  "/examples",
+  "/packaging",
+  "/pyproject.toml",
+  "/scripts",
+  "/src",
+  "/tests",
+  "/uv.lock",
+  "/validation/matlab",
+  "/validation/abaqus",
+  "/validation/release_candidate/templates",
+  "/validation/stable_release/promotion_record.json",
+  "/validation/output/phase3_validation_summary.json",
+  "/validation/output/phase4_coverage.json",
+  "/validation/output/phase4_validation.html",
+  "/validation/output/phase4_validation_summary.json",
+  "/validation/output/phase5_coverage.json",
+  "/validation/output/phase5_validation.html",
+  "/validation/output/phase5_validation_summary.json",
+]
+
+[tool.pytest.ini_options]
+addopts = "-ra --strict-markers"
+testpaths = ["tests"]
+markers = [
+  "gui: headless desktop-interface smoke tests",
+  "native: tests requiring Windows or a licensed Abaqus installation",
+  "statistical: slower ensemble-based statistical validation",
+  "regression: validation against an external or legacy reference",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "B", "SIM", "RUF"]
+
+[tool.ruff.lint.per-file-ignores]
+"packaging/abaqus/validate_generated_model.py" = ["SIM118", "UP017"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+packages = ["rfieldmesh"]
+
+[[tool.mypy.overrides]]
+module = ["scipy.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["plotly.*"]
+ignore_missing_imports = true

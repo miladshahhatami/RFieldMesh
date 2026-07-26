@@ -1,0 +1,60 @@
+{
+  "application_version": "1.0.0",
+  "artifacts": {
+    "RFieldMesh-1.0.0-windows-x64.zip": "replace_with_lowercase_sha256"
+  },
+  "checks": [
+    {
+      "check_id": "clean_machine_launch",
+      "details": "Replace with observed result.",
+      "passed": false
+    },
+    {
+      "check_id": "model_inspection",
+      "details": "Replace with observed result.",
+      "passed": false
+    },
+    {
+      "check_id": "preview_and_reproducibility",
+      "details": "Replace with observed result.",
+      "passed": false
+    },
+    {
+      "check_id": "batch_generation",
+      "details": "Replace with observed result.",
+      "passed": false
+    },
+    {
+      "check_id": "cancellation",
+      "details": "Replace with observed result.",
+      "passed": false
+    },
+    {
+      "check_id": "overwrite_protection",
+      "details": "Replace with observed result.",
+      "passed": false
+    },
+    {
+      "check_id": "offline_visualization",
+      "details": "Replace with observed result.",
+      "passed": false
+    },
+    {
+      "check_id": "usability_and_shutdown",
+      "details": "Replace with observed result.",
+      "passed": false
+    }
+  ],
+  "environment": {
+    "abaqus_version": "replace",
+    "display_scaling": "replace",
+    "operator": "replace",
+    "python_on_path": false,
+    "windows_version": "replace"
+  },
+  "executed_at_utc": "replace_with_iso_8601_utc_timestamp",
+  "gate_id": "user_acceptance",
+  "notes": [],
+  "schema_version": "1.0",
+  "status": "not_run"
+}

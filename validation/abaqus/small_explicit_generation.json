@@ -1,0 +1,53 @@
+{
+  "algorithm": "covariance_kl",
+  "covariance_kl": {
+    "eigenvalue_tolerance": 1e-10,
+    "max_points": 100,
+    "normalize_point_variance": true,
+    "retained_variance": 1.0
+  },
+  "first_seed": 1403,
+  "mapping": "centroid_sample",
+  "name_prefix": "RFM",
+  "output_path": "output/small_explicit_generated.inp",
+  "overwrite": true,
+  "part_name": "Soil",
+  "realization_index": 0,
+  "seed_strategy": "linear",
+  "set_name": "Soil",
+  "source_path": "small_explicit_source.inp",
+  "variables": [
+    {
+      "correlation": {
+        "model": "exponential",
+        "scales": [
+          1.0,
+          1.0
+        ]
+      },
+      "distribution": "lognormal",
+      "moments": {
+        "mean": 20000000.0,
+        "standard_deviation": 4000000.0,
+        "unit_label": "Pa"
+      },
+      "property_kind": "youngs_modulus"
+    },
+    {
+      "correlation": {
+        "model": "exponential",
+        "scales": [
+          1.0,
+          1.0
+        ]
+      },
+      "distribution": "lognormal",
+      "moments": {
+        "mean": 1800.0,
+        "standard_deviation": 90.0,
+        "unit_label": "kg/m^3"
+      },
+      "property_kind": "density"
+    }
+  ]
+}

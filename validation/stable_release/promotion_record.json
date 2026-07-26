@@ -1,0 +1,18 @@
+{
+  "application_version": "1.0.0",
+  "deferred_limitations": [
+    "Dense covariance/KL generation is restricted to moderate point counts.",
+    "The spectral mapper requires a complete, axis-aligned, structured 2D quadrilateral mesh.",
+    "Large rotated, skewed, and unstructured meshes require a future scalable general-mesh method."
+  ],
+  "native_validation": {
+    "attestation": "The user reported that the three requested Phase 6 native checks were completed successfully.",
+    "machine_evidence_uploaded": false,
+    "status": "user_attested"
+  },
+  "promotion_source_version": "0.9.0rc1",
+  "scientific_core_changed_during_promotion": false,
+  "schema_version": "1.0",
+  "source_release_status": "passed",
+  "validation_report": "validation/output/phase7_validation_summary.json"
+}

@@ -1,0 +1,39 @@
+*Heading
+** RFieldMesh redistributable Abaqus/Explicit native-validation model
+*Part, name=Soil
+*Node
+1, 0., 0.
+2, 1., 0.
+3, 2., 0.
+4, 0., 1.
+5, 1., 1.
+6, 2., 1.
+*Element, type=CPE4R
+1, 1, 2, 5, 4
+2, 2, 3, 6, 5
+*Elset, elset=Soil
+1, 2
+*Solid Section, elset=Soil, material=SoilMaterial
+,
+*End Part
+*Assembly, name=Assembly
+*Instance, name=Soil-1, part=Soil
+*End Instance
+*Nset, nset=Bottom, instance=Soil-1
+1, 2, 3
+*End Assembly
+*Material, name=SoilMaterial
+*Density
+1800.,
+*Elastic
+20000000., 0.30
+*Damping, alpha=0.19, beta=0.00015
+*Step, name=NativeSmoke, nlgeom=NO
+*Dynamic, Explicit
+, 0.001
+*Boundary
+Bottom, ENCASTRE
+*Output, field, number interval=1
+*Node Output
+U
+*End Step

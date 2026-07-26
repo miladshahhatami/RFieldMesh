@@ -1,0 +1,37 @@
+name: Windows desktop build
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build:
+    runs-on: windows-2022
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Build and smoke-test desktop release
+        shell: pwsh
+        run: ./packaging/windows/build.ps1 -Python "python"
+
+      - name: Upload Windows release
+        uses: actions/upload-artifact@v4
+        with:
+          name: rfieldmesh-windows-x64
+          path: |
+            release-windows/*.zip
+            release-windows/*.sha256
+            release-windows/evidence/windows_build.json
+            release-windows/evidence/pytest-junit.xml
+            release-windows/evidence/coverage.json
+            release-windows/evidence/locked-requirements.txt
+          if-no-files-found: error

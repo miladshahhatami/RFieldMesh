@@ -1,0 +1,45 @@
+{
+  "application_version": "1.0.0",
+  "artifacts": {
+    "rfieldmesh-1.0.0-py3-none-any.whl": "410c6a858d6417a67874265ac776a1622bcf50fe425621ff42d969bb2831af4c",
+    "rfieldmesh-1.0.0.tar.gz": "1420d2cb01aa6f8d4cc7b2176431af10c6f49dc14c4c9f7fb6d7d74e156e9ee8",
+    "source-coverage.json": "984ca7122600273a21eb106847ad65342461cff8a394bcec54919745a2088db8",
+    "source-pytest-junit.xml": "bdd0d559dc3ff39213827296921502be2fb04aa7eabd66abde3ad383e5974922"
+  },
+  "checks": [
+    {
+      "check_id": "pytest",
+      "details": "Automated tests and coverage; exit code 0. Complete output: source-pytest.log",
+      "passed": true
+    },
+    {
+      "check_id": "ruff_lint",
+      "details": "Ruff lint check; exit code 0. Complete output: source-ruff_lint.log",
+      "passed": true
+    },
+    {
+      "check_id": "ruff_format",
+      "details": "Ruff format check; exit code 0. Complete output: source-ruff_format.log",
+      "passed": true
+    },
+    {
+      "check_id": "mypy",
+      "details": "Strict mypy check; exit code 0. Complete output: source-mypy.log",
+      "passed": true
+    },
+    {
+      "check_id": "package_build",
+      "details": "Wheel and source-distribution build; exit code 0. Complete output: source-package_build.log",
+      "passed": true
+    }
+  ],
+  "environment": {
+    "platform": "Linux-6.12.13-x86_64-with-glibc2.39",
+    "python": "3.12.13"
+  },
+  "executed_at_utc": "2026-07-25T22:52:37.378460+00:00",
+  "gate_id": "source_quality",
+  "notes": [],
+  "schema_version": "1.0",
+  "status": "passed"
+}

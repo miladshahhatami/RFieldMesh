@@ -1,0 +1,31 @@
+{
+  "algorithm": "spectral",
+  "first_seed": 1403,
+  "mapping": "rectangular_gaussian_average",
+  "name_prefix": "RFM",
+  "output_path": "C:/replace/generated_2d.inp",
+  "overwrite": false,
+  "part_name": "Part-1",
+  "realization_index": 0,
+  "seed_strategy": "linear",
+  "set_name": "Set-1",
+  "source_path": "C:/replace/Job-1.inp",
+  "variables": [
+    {
+      "correlation": {
+        "model": "exponential",
+        "scales": [
+          10.0,
+          1.0
+        ]
+      },
+      "distribution": "lognormal",
+      "moments": {
+        "mean": 20000000.0,
+        "standard_deviation": 6000000.0,
+        "unit_label": "Pa"
+      },
+      "property_kind": "youngs_modulus"
+    }
+  ]
+}
