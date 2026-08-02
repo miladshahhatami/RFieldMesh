@@ -25,7 +25,7 @@
         "standard_deviation": 6000000.0,
         "unit_label": "Pa"
       },
-      "property_kind": "youngs_modulus"
+      "property_kind": "elastic_modulus"
     }
   ]
 }

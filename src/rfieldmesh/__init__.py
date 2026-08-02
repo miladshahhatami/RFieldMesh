@@ -20,6 +20,11 @@ from rfieldmesh.config.models import (
     RandomVariableConfig,
     SpectralConfig,
 )
+from rfieldmesh.config.properties import (
+    PROPERTY_REGISTRY,
+    PropertyDefinition,
+    property_definition,
+)
 from rfieldmesh.random_fields.covariance_kl import PreparedCovarianceKL
 from rfieldmesh.random_fields.marginals import apply_marginal
 from rfieldmesh.random_fields.observations import StructuredGrid2D
@@ -33,6 +38,7 @@ except PackageNotFoundError:  # pragma: no cover - source tree without installat
     __version__ = "0+unknown"
 
 __all__ = [
+    "PROPERTY_REGISTRY",
     "BatchConfig",
     "BoundsConfig",
     "CorrelationConfig",
@@ -46,6 +52,7 @@ __all__ = [
     "MomentSpecification",
     "PreparedCovarianceKL",
     "PreparedSpectralExponential2D",
+    "PropertyDefinition",
     "PropertyKind",
     "RandomVariableConfig",
     "SeedStrategy",
@@ -53,5 +60,6 @@ __all__ = [
     "StructuredGrid2D",
     "apply_marginal",
     "field_statistics",
+    "property_definition",
     "rng_for_realization",
 ]

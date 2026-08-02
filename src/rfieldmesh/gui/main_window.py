@@ -49,6 +49,7 @@ from rfieldmesh.config.models import (
     MomentSpecification,
     RandomVariableConfig,
 )
+from rfieldmesh.config.properties import property_definition
 from rfieldmesh.gui.project_view_model import PartOptions, ProjectViewModel
 from rfieldmesh.gui.widgets.plot_view import PlotView
 from rfieldmesh.gui.workers import FunctionWorker
@@ -60,22 +61,27 @@ class VariablePanel(QGroupBox):
 
     def __init__(
         self,
-        title: str,
+        property_kind: PropertyKind,
         *,
-        default_mean: float,
-        default_cv: float,
-        default_unit: str,
         checked: bool,
     ) -> None:
-        super().__init__(title)
+        definition = property_definition(property_kind)
+        super().__init__(f"{definition.display_name} ({definition.symbol})")
+        self.property_kind = property_kind
         self.setCheckable(True)
         self.setChecked(checked)
         form = QFormLayout(self)
 
         self.mean = QDoubleSpinBox()
         self.mean.setDecimals(8)
-        self.mean.setRange(1.0e-12, 1.0e18)
-        self.mean.setValue(default_mean)
+        minimum = -1.0e18 if definition.minimum is None else definition.minimum
+        maximum = 1.0e18 if definition.maximum is None else definition.maximum
+        if definition.minimum is not None and not definition.minimum_inclusive:
+            minimum += max(1.0e-12, abs(minimum) * 1.0e-9)
+        if definition.maximum is not None and not definition.maximum_inclusive:
+            maximum -= max(1.0e-12, abs(maximum) * 1.0e-9)
+        self.mean.setRange(minimum, maximum)
+        self.mean.setValue(definition.default_mean)
         self.mean.setKeyboardTracking(False)
         form.addRow("Point-scale mean", self.mean)
 
@@ -83,25 +89,29 @@ class VariablePanel(QGroupBox):
         self.cv.setDecimals(6)
         self.cv.setRange(1.0e-6, 10.0)
         self.cv.setSingleStep(0.01)
-        self.cv.setValue(default_cv)
+        self.cv.setValue(definition.default_cv)
         self.cv.setKeyboardTracking(False)
         form.addRow("Coefficient of variation", self.cv)
 
-        self.unit = QLineEdit(default_unit)
+        self.unit = QLineEdit(definition.default_unit)
         form.addRow("Unit label", self.unit)
 
         self.distribution = QComboBox()
         for item in DistributionKind:
             self.distribution.addItem(item.value.replace("_", " ").title(), item.value)
         self.distribution.setCurrentIndex(
-            self.distribution.findData(DistributionKind.LOGNORMAL.value)
+            self.distribution.findData(definition.default_distribution.value)
         )
         form.addRow("Distribution", self.distribution)
 
         self.lower_input = QLineEdit()
+        if definition.default_lower is not None:
+            self.lower_input.setText(f"{definition.default_lower:g}")
         self.lower_input.setPlaceholderText("Optional; required with no upper bound")
         form.addRow("Lower bound", self.lower_input)
         self.upper_input = QLineEdit()
+        if definition.default_upper is not None:
+            self.upper_input.setText(f"{definition.default_upper:g}")
         self.upper_input.setPlaceholderText("Optional; required with no lower bound")
         form.addRow("Upper bound", self.upper_input)
         self.distribution.currentIndexChanged.connect(self._update_bounds)
@@ -117,7 +127,7 @@ class VariablePanel(QGroupBox):
         stripped = text.strip()
         return None if not stripped else float(stripped)
 
-    def variable(self, property_kind: PropertyKind) -> RandomVariableConfig | None:
+    def variable(self) -> RandomVariableConfig | None:
         """Return the validated property configuration when enabled."""
         if not self.isChecked():
             return None
@@ -130,7 +140,7 @@ class VariablePanel(QGroupBox):
             )
         mean = self.mean.value()
         return RandomVariableConfig(
-            property_kind=property_kind,
+            property_kind=self.property_kind,
             moments=MomentSpecification(
                 mean=mean,
                 standard_deviation=mean * self.cv.value(),
@@ -203,21 +213,21 @@ class MainWindow(QMainWindow):
 
         variables = QGridLayout()
         self.youngs = VariablePanel(
-            "Young's modulus",
-            default_mean=20_000_000.0,
-            default_cv=0.30,
-            default_unit="Pa",
+            PropertyKind.ELASTIC_MODULUS,
             checked=True,
         )
         self.density = VariablePanel(
-            "Density",
-            default_mean=1800.0,
-            default_cv=0.10,
-            default_unit="kg/m³",
+            PropertyKind.DENSITY,
             checked=False,
         )
+        self.poissons = VariablePanel(PropertyKind.POISSONS_RATIO, checked=False)
+        self.friction = VariablePanel(PropertyKind.FRICTION_ANGLE, checked=False)
+        self.dilation = VariablePanel(PropertyKind.DILATION_ANGLE, checked=False)
         variables.addWidget(self.youngs, 0, 0)
         variables.addWidget(self.density, 0, 1)
+        variables.addWidget(self.poissons, 0, 2)
+        variables.addWidget(self.friction, 1, 0)
+        variables.addWidget(self.dilation, 1, 1)
         layout.addLayout(variables)
         layout.addStretch(1)
         self.tabs.addTab(tab, "2. Region and variables")
@@ -432,8 +442,11 @@ class MainWindow(QMainWindow):
 
     def _configured_variables(self) -> tuple[RandomVariableConfig, ...]:
         base = [
-            self.youngs.variable(PropertyKind.YOUNGS_MODULUS),
-            self.density.variable(PropertyKind.DENSITY),
+            self.youngs.variable(),
+            self.density.variable(),
+            self.poissons.variable(),
+            self.friction.variable(),
+            self.dilation.variable(),
         ]
         variables = tuple(variable for variable in base if variable is not None)
         if not variables:

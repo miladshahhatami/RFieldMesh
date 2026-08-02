@@ -6,12 +6,23 @@ writing capability that is not implemented in version 1.0.0.
 
 ## Random-field generation
 
-The general-coordinate algorithm forms a dense covariance matrix and computes a
-Karhunen–Loève eigendecomposition. Its memory requirement is \(O(N^2)\), and a
-full dense eigendecomposition has approximately \(O(N^3)\) computational
-complexity. A method-specific safeguard therefore limits this route to
-moderate-sized regions. Removing the safeguard does not make the calculation
-scalable and may exhaust system memory.
+The general-coordinate algorithm estimates dense covariance and eigensolver
+workspace before allocation. It uses dense Karhunen–Loève decomposition only
+within the configured memory budget; otherwise it constructs a matrix-free
+pivoted covariance factor. The latter stores \(O(Nr)\) values and evaluates
+covariance columns in blocks. Its residual-trace stopping rule retains the
+configured fraction of total point variance.
+
+The dense path still has quadratic \(O(N^2)\) covariance storage and an
+approximately cubic full eigendecomposition; the automatic estimate prevents
+that path from being selected outside its configured resource budget.
+
+There is no fixed element-count or point-count rejection. Nevertheless,
+computation is not unlimited. A weakly correlated field may require a large
+rank \(r\), and the calculation stops with a resource error if the requested
+variance cannot be reached within the configured mode and memory budgets. The
+legacy `max_points` JSON field is accepted for compatibility but is not used as
+an execution limit.
 
 The Fourier spectral route is scalable but currently requires all of the
 following:
@@ -22,16 +33,15 @@ following:
 - rectangular elements aligned with the global coordinate axes;
 - exponential correlation for the implemented analytical spectrum.
 
-Large rotated, skewed, incomplete, or unstructured meshes therefore have no
-supported scalable route in version 1.0.0. Independent subdivision of one
-physical domain is not an equivalent workaround because it removes
-cross-boundary spatial correlation.
+Rotated, skewed, incomplete, and unstructured meshes use the scalable
+general-coordinate route. Independent subdivision of one physical domain is
+not an equivalent workaround because it removes cross-boundary spatial
+correlation.
 
 Planned work includes rotated-grid recognition and an auxiliary-grid spectral
-method with interpolation or element averaging for general meshes. Resource
-estimation should then replace any application-wide point-count concept,
-although individual algorithms will retain scientifically necessary
-safeguards.
+method with interpolation or element averaging for general meshes. Individual
+algorithms will continue to retain scientifically necessary memory and
+accuracy safeguards.
 
 ## Abaqus model scope
 
@@ -41,8 +51,14 @@ safeguards.
   Unsupported types, including `AC3D8R`, are reported and preserved under their
   original assignment where section-remainder handling applies.
 - A configured region must inherit one unambiguous original solid section.
-- Only scalar, one-row `*Density` and isotropic, one-row `*Elastic` properties
-  are modified.
+- Only scalar, one-row `*Density`, isotropic `*Elastic`, and `*Mohr Coulomb`
+  rows without temperature, field, or dependency parameters are modified.
+- The supported random variables are Young's modulus, density, Poisson's ratio,
+  friction angle, and dilation angle. RFieldMesh does not introduce a
+  `*Mohr Coulomb` model into a material that lacks that keyword.
+- The constitutive recommendation that dilation angle should generally not
+  exceed friction angle is not silently enforced; users must define physically
+  defensible joint bounds and review the generated fields.
 - Independent fields for repeated instances of the same part are deferred.
 - Abaqus distribution-based assignment is not used in this release.
 

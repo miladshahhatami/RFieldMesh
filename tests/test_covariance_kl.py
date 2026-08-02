@@ -48,3 +48,20 @@ def test_kl_generation_is_reproducible() -> None:
     first = prepared.generate(rng_for_realization(4, 0, PropertyKind.DENSITY))
     second = prepared.generate(rng_for_realization(4, 0, PropertyKind.DENSITY))
     assert np.array_equal(first.values, second.values)
+
+
+def test_large_general_mesh_uses_matrix_free_factorization() -> None:
+    points = np.column_stack((np.linspace(0.0, 10.0, 300), np.zeros(300)))
+    prepared = PreparedCovarianceKL.prepare(
+        points,
+        CorrelationConfig(scales=(100.0, 100.0)),
+        config=KLConfig(
+            retained_variance=0.95,
+            dense_memory_limit_mb=1.1,
+            iterative_max_modes=32,
+            max_points=2,  # legacy field is accepted but no longer rejects by point count
+        ),
+    )
+    assert prepared.diagnostics.factorization == "pivoted_cholesky"
+    assert prepared.diagnostics.covariance_memory_bytes == 0
+    assert prepared.diagnostics.retained_variance_fraction >= 0.95

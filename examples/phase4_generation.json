@@ -1,14 +1,14 @@
 {
-  "source_path": "Job-1.inp",
-  "output_path": "Job-1_RFieldMesh_1403.inp",
+  "source_path": "../validation/representative_models/2D-Model.inp",
+  "output_path": "../validation/output/2D-Model_RFieldMesh_1403.inp",
   "part_name": "Part-1",
   "set_name": "Set-1",
   "variables": [
     {
-      "property_kind": "youngs_modulus",
+      "property_kind": "elastic_modulus",
       "moments": {
-        "mean": 20000000.0,
-        "standard_deviation": 6000000.0,
+        "mean": 5000000.0,
+        "standard_deviation": 1500000.0,
         "unit_label": "Pa"
       },
       "distribution": "lognormal",
@@ -24,6 +24,9 @@
   "first_seed": 1403,
   "algorithm": "auto",
   "mapping": "auto",
+  "spectral": {
+    "retained_variance": 0.995
+  },
   "name_prefix": "RFM",
   "overwrite": false
 }

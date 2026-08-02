@@ -9,6 +9,14 @@ description = "Reproducible spatial random fields for finite-element meshes"
 readme = "README.md"
 requires-python = ">=3.12,<3.15"
 license = { file = "LICENSE" }
+keywords = [
+  "random fields",
+  "finite elements",
+  "geotechnical engineering",
+  "spatial variability",
+  "uncertainty quantification",
+  "Abaqus",
+]
 authors = [
   { name = "Milad Shah Hatami" },
 ]
@@ -70,6 +78,7 @@ include = [
   "/CITATION.cff",
   "/CODE_OF_CONDUCT.md",
   "/CONTRIBUTING.md",
+  "/ENHANCEMENT_HANDOFF.md",
   "/KNOWN_LIMITATIONS.md",
   "/LICENSE",
   "/README.md",
@@ -89,6 +98,13 @@ include = [
   "/uv.lock",
   "/validation/matlab",
   "/validation/abaqus",
+  "/validation/representative_models",
+  "/validation/V1.0.0_ENHANCEMENT_VALIDATION.md",
+  "/validation/output/2D-Model_all_five.inp",
+  "/validation/output/2D-Model_all_five.rfieldmesh.json",
+  "/validation/output/3D-Model_Layer1_all_five.inp",
+  "/validation/output/3D-Model_Layer1_all_five.rfieldmesh.json",
+  "/validation/output/v1.0.0_enhancement_summary.json",
   "/validation/release_candidate/templates",
   "/validation/stable_release/promotion_record.json",
   "/validation/output/phase3_validation_summary.json",
@@ -98,6 +114,8 @@ include = [
   "/validation/output/phase5_coverage.json",
   "/validation/output/phase5_validation.html",
   "/validation/output/phase5_validation_summary.json",
+  "/validation/output/phase7_validation.html",
+  "/validation/output/phase7_validation_summary.json",
 ]
 
 [tool.pytest.ini_options]

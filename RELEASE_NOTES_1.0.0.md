@@ -2,9 +2,8 @@
 
 ## Outcome
 
-Version 1.0.0 promotes the validated `0.9.0rc1` scientific core to the first
-stable release. No random-field algorithm, Abaqus parsing rule, material-writing
-rule, or reproducibility convention was changed during promotion.
+Version 1.0.0 is the first stable, pre-publication release. Coauthor review was
+incorporated before public release without changing the version identifier.
 
 ## Stable capabilities
 
@@ -12,7 +11,12 @@ rule, or reproducibility convention was changed during promotion.
 - exponential and squared-exponential latent correlation models;
 - structured two-dimensional spectral simulation with rectangular local
   averaging;
-- covariance/Karhunen–Loève simulation for moderate general-coordinate models;
+- automatic dense KL or scalable matrix-free pivoted covariance simulation for
+  general-coordinate models, with trace-based variance retention;
+- independent random fields for Young's modulus, density, Poisson's ratio,
+  friction angle, and dilation angle;
+- column-aware `*Elastic` and `*Mohr Coulomb` updates with companion-value
+  preservation;
 - safe Abaqus inspection, region resolution, material cloning, section
   assignment, manifest generation, and independent reparsing;
 - command-line inspection, preview, generation, batch, and release-audit
@@ -35,10 +39,10 @@ evidence files that were not uploaded.
 
 ## Applicability boundary
 
-Dense KL generation remains limited to moderate point counts. The scalable
-spectral mapper requires a complete, axis-aligned, structured 2D quadrilateral
-mesh. Large rotated, skewed, or unstructured meshes are deferred to a later
-version. See `KNOWN_LIMITATIONS.md` and
+No fixed element-count cap is imposed. Feasibility remains conditional on the
+configured dense and low-rank memory budgets, requested retained variance,
+correlation scales, and available computational resources. See
+`KNOWN_LIMITATIONS.md` and
 `docs/publication/manuscript_limitations.md`.
 
 ## Publication status

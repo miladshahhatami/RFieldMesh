@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import hashlib
-import math
 import os
 import re
 import tempfile
@@ -14,6 +13,8 @@ from pathlib import Path
 from rfieldmesh.abaqus.model import AbaqusModel, MaterialDefinition
 from rfieldmesh.abaqus.regions import ResolvedRegion
 from rfieldmesh.abaqus.tokens import KeywordToken, canonical_name
+from rfieldmesh.config.enums import PropertyKind
+from rfieldmesh.config.properties import property_definition
 from rfieldmesh.exceptions import UnsafeWriteError, UnsupportedModelError
 
 
@@ -44,14 +45,11 @@ class AssignmentResult:
     generated_material_names: dict[int, str]
     remainder_set_name: str | None
     source_material_name: str
-
-
-def _format_number(value: float) -> str:
-    return f"{value:.15g}"
+    randomized_properties: tuple[PropertyKind, ...]
 
 
 def _validate_values(
-    name: str,
+    kind: PropertyKind,
     values: Mapping[int, float] | None,
     expected_labels: tuple[int, ...],
 ) -> dict[int, float] | None:
@@ -62,10 +60,16 @@ def _validate_values(
         missing = len(set(expected_labels) - set(normalized))
         extra = len(set(normalized) - set(expected_labels))
         raise UnsafeWriteError(
-            f"{name} values do not match the eligible region: {missing} missing, {extra} extra."
+            f"{property_definition(kind).display_name} values do not match the eligible "
+            f"region: {missing} missing, {extra} extra."
         )
-    if any(not math.isfinite(value) or value <= 0.0 for value in normalized.values()):
-        raise UnsafeWriteError(f"Every {name} value must be positive and finite.")
+    definition = property_definition(kind)
+    invalid = [value for value in normalized.values() if not definition.value_is_valid(value)]
+    if invalid:
+        raise UnsafeWriteError(
+            f"Every {definition.display_name} value must be finite and lie in "
+            f"{definition.interval_text}; values were not clipped."
+        )
     return normalized
 
 
@@ -91,35 +95,35 @@ def _validate_cloneable_material(
     model: AbaqusModel,
     material: MaterialDefinition,
     *,
-    replace_youngs_modulus: bool,
-    replace_density: bool,
+    property_kinds: tuple[PropertyKind, ...],
 ) -> None:
-    if replace_density:
-        if material.density_token_index is None:
+    by_keyword: dict[str, list[PropertyKind]] = {}
+    for kind in property_kinds:
+        by_keyword.setdefault(property_definition(kind).abaqus_keyword, []).append(kind)
+    for keyword, kinds in by_keyword.items():
+        token_index = material.property_token_index(kinds[0])
+        if token_index is None:
+            names = ", ".join(property_definition(kind).display_name for kind in kinds)
             raise UnsupportedModelError(
-                f"Material {material.name!r} has no scalar *Density definition."
+                f"Material {material.name!r} has no scalar *{keyword.title()} definition "
+                f"required for {names}. The constitutive keyword will not be introduced "
+                "automatically."
             )
-        density_token = model.tokens[material.density_token_index]
-        disallowed = set(density_token.parameters) - {"density"}
-        if disallowed or len(_material_property_rows(model, density_token.index)) != 1:
+        token = model.tokens[token_index]
+        rows = _material_property_rows(model, token.index)
+        if keyword == "elastic":
+            elastic_type = token.parameter("type")
+            disallowed = set(token.parameters) - {"type"}
+            if elastic_type is not None and elastic_type.casefold() != "isotropic":
+                disallowed.add("type")
+        else:
+            disallowed = set(token.parameters)
+        required_columns = max(property_definition(kind).column_index for kind in kinds) + 1
+        row_columns = 0 if not rows else len(rows[0].split(","))
+        if disallowed or len(rows) != 1 or row_columns < required_columns:
             raise UnsupportedModelError(
-                "Temperature/field-dependent or multirow *Density data are not supported."
-            )
-    if replace_youngs_modulus:
-        if material.elastic_token_index is None:
-            raise UnsupportedModelError(
-                f"Material {material.name!r} has no isotropic *Elastic definition."
-            )
-        elastic_token = model.tokens[material.elastic_token_index]
-        elastic_type = elastic_token.parameter("type")
-        disallowed = set(elastic_token.parameters) - {"type"}
-        if (
-            disallowed
-            or (elastic_type is not None and elastic_type.casefold() != "isotropic")
-            or len(_material_property_rows(model, elastic_token.index)) != 1
-        ):
-            raise UnsupportedModelError(
-                "Only one-row isotropic *Elastic data without dependencies are supported."
+                f"Only one-row scalar *{keyword.title()} data without temperature, field, "
+                "or dependency parameters are supported."
             )
 
 
@@ -131,17 +135,26 @@ def _replace_material_name(line: str, new_name: str) -> str:
     return replacement
 
 
-def _replace_first_csv_value(line: str, value: float) -> str:
+def _replace_csv_value(
+    line: str,
+    column_index: int,
+    value: float,
+    kind: PropertyKind,
+) -> str:
     line_ending = ""
     body = line
     if body.endswith("\r\n"):
         body, line_ending = body[:-2], "\r\n"
     elif body.endswith(("\n", "\r")):
         body, line_ending = body[:-1], body[-1]
-    match = re.match(r"^(\s*)[^,\r\n]*(.*)$", body)
-    if match is None:
+    fields = body.split(",")
+    if column_index >= len(fields):
         raise UnsafeWriteError("Could not replace a material-property value safely.")
-    return f"{match.group(1)}{_format_number(value)}{match.group(2)}{line_ending}"
+    original = fields[column_index]
+    leading = original[: len(original) - len(original.lstrip())]
+    trailing = original[len(original.rstrip()) :]
+    fields[column_index] = f"{leading}{property_definition(kind).format_value(value)}{trailing}"
+    return ",".join(fields) + line_ending
 
 
 def _clone_material(
@@ -149,15 +162,16 @@ def _clone_material(
     material: MaterialDefinition,
     *,
     new_name: str,
-    youngs_modulus: float | None,
-    density: float | None,
+    property_values: Mapping[PropertyKind, float],
 ) -> str:
     block = model.source.text[material.start : material.end]
     lines = block.splitlines(keepends=True)
     mode: str | None = None
     replaced_name = False
-    replaced_elastic = youngs_modulus is None
-    replaced_density = density is None
+    replaced: set[PropertyKind] = set()
+    by_keyword: dict[str, list[PropertyKind]] = {}
+    for kind in property_values:
+        by_keyword.setdefault(property_definition(kind).abaqus_keyword, []).append(kind)
     output: list[str] = []
     for line in lines:
         stripped = line.lstrip()
@@ -168,14 +182,18 @@ def _clone_material(
                 line = _replace_material_name(line, new_name)
                 replaced_name = True
         elif stripped and not stripped.startswith("**"):
-            if mode == "elastic" and not replaced_elastic and youngs_modulus is not None:
-                line = _replace_first_csv_value(line, youngs_modulus)
-                replaced_elastic = True
-            elif mode == "density" and not replaced_density and density is not None:
-                line = _replace_first_csv_value(line, density)
-                replaced_density = True
+            for kind in by_keyword.get(mode or "", ()):
+                if kind not in replaced:
+                    definition = property_definition(kind)
+                    line = _replace_csv_value(
+                        line,
+                        definition.column_index,
+                        property_values[kind],
+                        kind,
+                    )
+                    replaced.add(kind)
         output.append(line)
-    if not (replaced_name and replaced_elastic and replaced_density):
+    if not replaced_name or replaced != set(property_values):
         raise UnsafeWriteError("The source material could not be cloned completely.")
     return "".join(output)
 
@@ -235,22 +253,50 @@ def write_elementwise_materials(
     region: ResolvedRegion,
     output_path: str | Path,
     *,
+    property_values: Mapping[PropertyKind, Mapping[int, float]] | None = None,
     youngs_modulus: Mapping[int, float] | None = None,
     density: Mapping[int, float] | None = None,
+    poissons_ratio: Mapping[int, float] | None = None,
+    friction_angle: Mapping[int, float] | None = None,
+    dilation_angle: Mapping[int, float] | None = None,
     name_prefix: str = "RFM",
     overwrite: bool = False,
 ) -> AssignmentResult:
-    """Clone the complete source material per eligible target element and write atomically."""
-    if youngs_modulus is None and density is None:
+    """Clone a source material per target element and stream an atomic output.
+
+    The legacy modulus and density keyword arguments remain accepted. New code
+    can pass all supported properties through ``property_values``.
+    """
+    supplied: dict[PropertyKind, Mapping[int, float]] = {}
+    if property_values is not None:
+        supplied.update({PropertyKind(kind): values for kind, values in property_values.items()})
+    legacy = {
+        PropertyKind.ELASTIC_MODULUS: youngs_modulus,
+        PropertyKind.DENSITY: density,
+        PropertyKind.POISSONS_RATIO: poissons_ratio,
+        PropertyKind.FRICTION_ANGLE: friction_angle,
+        PropertyKind.DILATION_ANGLE: dilation_angle,
+    }
+    for kind, values in legacy.items():
+        if values is None:
+            continue
+        if kind in supplied:
+            raise UnsafeWriteError(
+                f"{property_definition(kind).display_name} was supplied more than once."
+            )
+        supplied[kind] = values
+    if not supplied:
         raise UnsafeWriteError("At least one material property must be randomized.")
-    youngs_values = _validate_values("Young's-modulus", youngs_modulus, region.eligible_labels)
-    density_values = _validate_values("density", density, region.eligible_labels)
+    normalized = {
+        kind: _validate_values(kind, values, region.eligible_labels)
+        for kind, values in supplied.items()
+    }
+    property_maps = {kind: values for kind, values in normalized.items() if values is not None}
     source_material = model.material(region.coverage.source_material_name)
     _validate_cloneable_material(
         model,
         source_material,
-        replace_youngs_modulus=youngs_values is not None,
-        replace_density=density_values is not None,
+        property_kinds=tuple(property_maps),
     )
 
     destination = Path(output_path).expanduser().resolve()
@@ -287,7 +333,6 @@ def write_elementwise_materials(
             ]
         )
 
-    material_text: list[str] = []
     for label in region.eligible_labels:
         set_name = _unique_name(f"{normalized_prefix}_E_{label}", occupied_sets)
         material_name = _unique_name(f"{normalized_prefix}_M_{label}", occupied_materials)
@@ -301,34 +346,10 @@ def write_elementwise_materials(
                 f",{newline}",
             ]
         )
-        material_text.append(
-            _clone_material(
-                model,
-                source_material,
-                new_name=material_name,
-                youngs_modulus=(None if youngs_values is None else youngs_values[label]),
-                density=None if density_values is None else density_values[label],
-            )
-        )
 
     section_token = model.tokens[region.coverage.section.token_index]
+    section_end = _token_content_end(model, section_token)
     insertion_position = max(material.end for material in model.materials.values())
-    patches = [
-        Patch(
-            start=section_token.start,
-            end=_token_content_end(model, section_token),
-            replacement="".join(section_text),
-            reason="replace original section coverage",
-        ),
-        Patch(
-            start=insertion_position,
-            end=insertion_position,
-            replacement="".join(material_text),
-            reason="insert cloned element materials",
-        ),
-    ]
-    output_text = _apply_patches(model.source.text, patches)
-    payload = model.source.encode(output_text)
 
     temporary_name: str | None = None
     try:
@@ -339,10 +360,45 @@ def write_elementwise_materials(
             dir=destination.parent,
             delete=False,
         ) as temporary:
-            temporary.write(payload)
+
+            def write_text(text: str) -> None:
+                temporary.write(text.encode(model.source.encoding))
+
+            def write_materials() -> None:
+                for element_label in region.eligible_labels:
+                    write_text(
+                        _clone_material(
+                            model,
+                            source_material,
+                            new_name=generated_materials[element_label],
+                            property_values={
+                                kind: values[element_label]
+                                for kind, values in property_maps.items()
+                            },
+                        )
+                    )
+
+            temporary.write(model.source.bom)
+            if section_token.start <= insertion_position:
+                write_text(model.source.text[: section_token.start])
+                for chunk in section_text:
+                    write_text(chunk)
+                write_text(model.source.text[section_end:insertion_position])
+                write_materials()
+                write_text(model.source.text[insertion_position:])
+            else:
+                write_text(model.source.text[:insertion_position])
+                write_materials()
+                write_text(model.source.text[insertion_position : section_token.start])
+                for chunk in section_text:
+                    write_text(chunk)
+                write_text(model.source.text[section_end:])
             temporary.flush()
             os.fsync(temporary.fileno())
             temporary_name = temporary.name
+        output_size = Path(temporary_name).stat().st_size
+        with Path(temporary_name).open("rb") as completed:
+            output_sha256 = hashlib.file_digest(completed, "sha256").hexdigest()
         _publish_temporary(temporary_name, destination, overwrite=overwrite)
     except (OSError, UnsafeWriteError) as exc:
         if temporary_name is not None:
@@ -353,8 +409,8 @@ def write_elementwise_materials(
 
     return AssignmentResult(
         output_path=destination,
-        output_sha256=hashlib.sha256(payload).hexdigest(),
-        output_size_bytes=len(payload),
+        output_sha256=output_sha256,
+        output_size_bytes=output_size,
         source_sha256=model.source.sha256,
         part_name=region.part.name,
         instance_name=None if region.instance is None else region.instance.name,
@@ -365,4 +421,5 @@ def write_elementwise_materials(
         generated_material_names=generated_materials,
         remainder_set_name=remainder_name,
         source_material_name=source_material.name,
+        randomized_properties=tuple(property_maps),
     )

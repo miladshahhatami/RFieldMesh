@@ -5,19 +5,19 @@ three outstanding native checks: supported-model generation and Abaqus use,
 clean Windows packaged-application operation, and completion of the requested
 native validation sequence.
 
-The scientific core was frozen during promotion. Version, documentation,
-packaging contents, public-project metadata, and release automation were
-updated. Because the native JSON evidence and Windows ZIP were not uploaded to
-the development workspace, the release record describes those checks as
-user-attested rather than manufacturing substitute evidence.
+The scientific core was frozen during the original promotion. Before public
+release or manuscript submission, coauthor-requested five-property and
+large-mesh enhancements were incorporated while retaining version 1.0.0. The
+updated source requires a new Windows package and native Abaqus confirmation;
+earlier native evidence applies only to its recorded source state.
 
 ## Deferred scope
 
-The stable release does not process arbitrarily large general meshes. Dense KL
-has a method-specific resource safeguard, while the scalable spectral mapper
-requires a complete, axis-aligned, structured 2D quadrilateral grid. Large
-rotated, skewed, or unstructured meshes are explicitly deferred to a later
-minor release.
+The stable release does not claim unlimited processing of general meshes.
+Dense KL has a memory safeguard, while larger general meshes use a matrix-free
+low-rank covariance factor with explicit mode and memory budgets. The scalable
+spectral mapper requires a complete, axis-aligned, structured 2D quadrilateral
+grid. No fixed point-count cap is applied.
 
 ## Promotion rule
 

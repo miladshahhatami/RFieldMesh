@@ -2,7 +2,9 @@
   "algorithm": "covariance_kl",
   "covariance_kl": {
     "eigenvalue_tolerance": 1e-10,
-    "max_points": 5000,
+    "dense_memory_limit_mb": 256.0,
+    "iterative_memory_limit_mb": 1024.0,
+    "iterative_max_modes": 2048,
     "normalize_point_variance": true,
     "retained_variance": 0.999
   },
@@ -32,7 +34,7 @@
         "standard_deviation": 6000000.0,
         "unit_label": "Pa"
       },
-      "property_kind": "youngs_modulus"
+      "property_kind": "elastic_modulus"
     }
   ]
 }

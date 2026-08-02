@@ -4,12 +4,21 @@ All notable changes follow Semantic Versioning.
 
 ## 1.0.0 — Stable release
 
-- Promoted the validated `0.9.0rc1` scientific core without changing numerical
-  algorithms or Abaqus-writing semantics.
+- Extended the pre-publication stable code to five registry-defined material
+  properties while retaining version `1.0.0`.
+- Added Poisson's ratio, friction-angle, and dilation-angle random fields to the
+  GUI, JSON CLI workflow, Python API, Plotly reporting, writer, verifier, and
+  provenance manifest.
+- Added column-aware updates and companion-value preservation for `*Elastic`
+  and `*Mohr Coulomb`.
+- Replaced the fixed KL point cap with dense-memory estimation and a
+  matrix-free pivoted covariance factor using a residual-trace variance rule.
+- Added full 20,000-element 2D and 10,032-eligible-element 3D regression models,
+  verified outputs, examples, performance evidence, and five-property tests.
 - Added stable-release notes, a quick-start guide, a publication checklist,
   contribution guidance, security policy, code of conduct, and issue templates.
-- Documented the dense KL resource boundary and the structured, axis-aligned
-  mesh requirement of the current spectral mapper.
+- Documented the dense and scalable low-rank resource boundaries and the
+  structured, axis-aligned mesh requirement of the spectral mapper.
 - Added manuscript-ready limitations text and a machine-readable promotion
   record that distinguishes user-attested native validation from uploaded
   machine evidence.

@@ -12,6 +12,7 @@ from rfieldmesh.abaqus.geometry import structured_region_2d
 from rfieldmesh.application.generate import FieldGeneration
 from rfieldmesh.application.preview import PreviewResult
 from rfieldmesh.config.enums import PropertyKind
+from rfieldmesh.config.properties import property_definition
 from rfieldmesh.exceptions import GeometryError, VisualizationExportError
 from rfieldmesh.infrastructure.atomic_files import write_text_atomic
 
@@ -69,7 +70,7 @@ def field_figure(
         ),
         "",
     )
-    colorbar_title = field.property_kind.value.replace("_", " ").title()
+    colorbar_title = property_definition(field.property_kind).display_name
     if unit:
         colorbar_title += f" [{unit}]"
     title = f"{colorbar_title} — realization {preview.config.realization_index}"
@@ -108,6 +109,15 @@ def field_figure(
             )
         else:
             coordinates = preview.region.representative_coordinates
+            sample = np.linspace(
+                0,
+                coordinates.shape[0] - 1,
+                min(coordinates.shape[0], 50_000),
+                dtype=np.int64,
+            )
+            coordinates = coordinates[sample]
+            values = values[sample]
+            labels = labels[sample]
             figure = go.Figure(
                 data=go.Scattergl(
                     x=coordinates[:, 0],
@@ -137,6 +147,15 @@ def field_figure(
         )
     else:
         coordinates = preview.region.representative_coordinates
+        sample = np.linspace(
+            0,
+            coordinates.shape[0] - 1,
+            min(coordinates.shape[0], 50_000),
+            dtype=np.int64,
+        )
+        coordinates = coordinates[sample]
+        values = values[sample]
+        labels = labels[sample]
         figure = go.Figure(
             data=go.Scatter3d(
                 x=coordinates[:, 0],
@@ -181,7 +200,7 @@ def distribution_figure(
     values = _field_values(preview, field)
     ordered = np.sort(values)
     cumulative = np.arange(1, ordered.size + 1, dtype=np.float64) / ordered.size
-    label = field.property_kind.value.replace("_", " ").title()
+    label = property_definition(field.property_kind).display_name
     figure = make_subplots(specs=[[{"secondary_y": True}]])
     figure.add_trace(
         go.Histogram(
@@ -230,17 +249,23 @@ def _statistics_table(preview: PreviewResult) -> str:
             "<tr>"
             f"<td>{html.escape(field.property_kind.value)}</td>"
             f"<td>{html.escape(field.algorithm.value)}</td>"
+            f"<td>{field.seed}</td>"
             f"<td>{statistics.count:,}</td>"
             f"<td>{statistics.target_mean:.8g}</td>"
             f"<td>{statistics.sample_mean:.8g}</td>"
             f"<td>{statistics.sample_standard_deviation:.8g}</td>"
             f"<td>{statistics.sample_coefficient_of_variation:.6f}</td>"
+            f"<td>{statistics.minimum:.8g}</td>"
+            f"<td>{statistics.maximum:.8g}</td>"
+            "<td>0</td>"
             "</tr>"
         )
     return (
-        "<table><thead><tr><th>Property</th><th>Algorithm</th><th>Elements</th>"
+        "<table><thead><tr><th>Property</th><th>Algorithm</th><th>Root seed</th>"
+        "<th>Elements</th>"
         "<th>Target mean</th><th>Sample mean</th><th>Sample SD</th>"
-        "<th>Sample CV</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
+        "<th>Sample CV</th><th>Minimum</th><th>Maximum</th><th>Invalid</th>"
+        "</tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
     )
 
 

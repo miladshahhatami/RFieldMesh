@@ -8,8 +8,11 @@ from rfieldmesh.config.enums import PropertyKind, SeedStrategy
 from rfieldmesh.exceptions import ConfigurationError
 
 _PROPERTY_STREAM_CODES: dict[PropertyKind, int] = {
-    PropertyKind.YOUNGS_MODULUS: 101,
+    PropertyKind.ELASTIC_MODULUS: 101,
     PropertyKind.DENSITY: 211,
+    PropertyKind.POISSONS_RATIO: 307,
+    PropertyKind.FRICTION_ANGLE: 401,
+    PropertyKind.DILATION_ANGLE: 503,
 }
 
 

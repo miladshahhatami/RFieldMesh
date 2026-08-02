@@ -62,7 +62,10 @@ def inspect_model(path: str | Path) -> dict[str, Any]:
                 "name": material.name,
                 "density": material.density,
                 "youngs_modulus": material.youngs_modulus,
+                "elastic_modulus": material.youngs_modulus,
                 "poissons_ratio": material.poissons_ratio,
+                "friction_angle": material.friction_angle,
+                "dilation_angle": material.dilation_angle,
             }
             for material in model.materials.values()
         ],
