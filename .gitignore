@@ -1,57 +1,38 @@
-# Python cache files
 __pycache__/
 *.py[cod]
-*$py.class
-
-# Testing and analysis caches
+*.egg-info/
+.coverage
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
-.coverage
-.coverage.*
-htmlcov/
-
-# Virtual environments
-.venv/
-.venv-*/
-venv/
-env/
-
-# Python packaging outputs
+.hypothesis/
+.venv*/
 build/
 dist/
-dist-*/
-*.egg-info/
-.eggs/
-
-# Windows application builds
+htmlcov/
 release-windows/
-
-# Abaqus-generated analysis files
+validation/release_candidate/evidence/
+validation/release_candidate/abaqus-jobs/
+*.cae
 *.odb
-*.lck
+*.sim
+*.stt
+*.prt
 *.msg
 *.sta
 *.dat
-*.log
-*.sim
 *.com
-*.prt
-*.mdl
-*.stt
-*.res
-*.pac
-*.sel
-
-# Editors and operating systems
-.vscode/
-.idea/
-Thumbs.db
-Desktop.ini
+*.log
+*.lck
 .DS_Store
+Thumbs.db
+# Private manuscript and submission materials
+docs/publication/RFieldMesh_SoftwareX_Manuscript_v1.0.0.docx
+docs/publication/softwarex_manuscript.md
+docs/publication/HIGHLIGHTS.txt
+docs/publication/manuscript/rfieldmesh-graphical-abstract.png
 
-# Temporary files
-*.tmp
-*.temp
-*.bak
-~$*
+# Generated distributions and Windows builds
+dist-enhanced/
+release-windows/
+.venv-windows-build/

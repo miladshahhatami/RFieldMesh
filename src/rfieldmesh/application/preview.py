@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from rfieldmesh.abaqus.model import AbaqusModel
 from rfieldmesh.abaqus.parser import parse_abaqus_model
 from rfieldmesh.abaqus.regions import ResolvedRegion, resolve_region
-from rfieldmesh.application.generate import FieldGeneration, generate_property_field
+from rfieldmesh.application.generate import FieldGeneration, generate_property_fields
 from rfieldmesh.config.models import GenerationConfig
 
 
@@ -40,9 +40,7 @@ def preview_model(config: GenerationConfig) -> PreviewResult:
         set_name=config.set_name,
         instance_name=config.instance_name,
     )
-    fields = tuple(
-        generate_property_field(region, variable, config) for variable in config.variables
-    )
+    fields = generate_property_fields(region, config)
     return PreviewResult(
         config=config,
         model=model,

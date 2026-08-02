@@ -4,10 +4,25 @@ from enum import StrEnum
 
 
 class PropertyKind(StrEnum):
-    """Material properties supported by the first release."""
+    """Material properties supported by RFieldMesh v1.0.0.
 
-    YOUNGS_MODULUS = "youngs_modulus"
+    ``youngs_modulus`` was used by pre-publication configuration files. It is
+    accepted through :meth:`_missing_`, while new manifests use the clearer
+    ``elastic_modulus`` identifier.
+    """
+
+    ELASTIC_MODULUS = "elastic_modulus"
+    YOUNGS_MODULUS = "elastic_modulus"  # backwards-compatible Python alias
     DENSITY = "density"
+    POISSONS_RATIO = "poissons_ratio"
+    FRICTION_ANGLE = "friction_angle"
+    DILATION_ANGLE = "dilation_angle"
+
+    @classmethod
+    def _missing_(cls, value: object) -> "PropertyKind | None":
+        if isinstance(value, str) and value.casefold() == "youngs_modulus":
+            return cls.ELASTIC_MODULUS
+        return None
 
 
 class DistributionKind(StrEnum):

@@ -1,0 +1,60 @@
+{
+  "application_version": "1.0.0",
+  "environment": {
+    "abaqus_available": false,
+    "operating_system": "Linux",
+    "python": "3.12.13",
+    "windows_build_performed": false
+  },
+  "models": [
+    {
+      "checked_elements": 20000,
+      "factorization": "spectral",
+      "manifest": "2D-Model_all_five.rfieldmesh.json",
+      "output": "2D-Model_all_five.inp",
+      "output_sha256": "0c7d83f6e53b1f230b1f7d525fa5fe174cc92e17ce8cc1b632cd86e577851d10",
+      "output_size_mib": 7.28,
+      "peak_rss_mib": 557.43,
+      "properties": [
+        "elastic_modulus",
+        "density",
+        "poissons_ratio",
+        "friction_angle",
+        "dilation_angle"
+      ],
+      "runtime_seconds": 39.709,
+      "source": "2D-Model.inp",
+      "source_sha256": "bdcf0f4997b95da80b88a28e90ddc1d59a5e2b48a73270520a6e9666c37ba1e3",
+      "validation_passed": true
+    },
+    {
+      "checked_elements": 10032,
+      "excluded_elements": 600,
+      "factorization": "pivoted_cholesky",
+      "manifest": "3D-Model_Layer1_all_five.rfieldmesh.json",
+      "output": "3D-Model_Layer1_all_five.inp",
+      "output_sha256": "3c49546cf7aff129479a652b05e83c2e0d55dc7787d7da9b031f77636bf4ef87",
+      "output_size_mib": 7.23,
+      "peak_rss_mib": 255.5,
+      "properties": [
+        "elastic_modulus",
+        "density",
+        "poissons_ratio",
+        "friction_angle",
+        "dilation_angle"
+      ],
+      "retained_modes": 70,
+      "retained_variance_fraction": 0.9505762219759529,
+      "runtime_seconds": 2.226,
+      "source": "3D-Model.inp",
+      "source_sha256": "ff605ff694c03a1644285c465139ef6042290482baa7b15a74a22370f1747454",
+      "validation_passed": true
+    }
+  ],
+  "native_validation_note": "Abaqus and a Windows build host were unavailable; no native Abaqus or Windows-executable success is claimed.",
+  "source_tests": {
+    "failed": 0,
+    "passed": 82,
+    "skipped": 1
+  }
+}

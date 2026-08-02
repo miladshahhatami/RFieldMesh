@@ -14,6 +14,7 @@ from rfieldmesh.config.enums import (
     PropertyKind,
     SeedStrategy,
 )
+from rfieldmesh.config.properties import property_definition
 
 
 class FrozenModel(BaseModel):
@@ -23,9 +24,9 @@ class FrozenModel(BaseModel):
 
 
 class MomentSpecification(FrozenModel):
-    """Physical-space point statistics for a positive material property."""
+    """Physical-space point statistics for one scalar material property."""
 
-    mean: float = Field(gt=0.0)
+    mean: float
     standard_deviation: float = Field(gt=0.0)
     unit_label: str = ""
 
@@ -90,11 +91,15 @@ class SpectralConfig(FrozenModel):
 
 
 class KLConfig(FrozenModel):
-    """Numerical controls for covariance/Karhunen-Loeve simulation."""
+    """Numerical controls for dense or scalable covariance factorization."""
 
     retained_variance: float = Field(default=0.999, gt=0.0, le=1.0)
     eigenvalue_tolerance: float = Field(default=1.0e-10, gt=0.0)
-    max_points: int = Field(default=5_000, ge=2)
+    dense_memory_limit_mb: float = Field(default=256.0, gt=1.0)
+    iterative_memory_limit_mb: float = Field(default=1024.0, gt=1.0)
+    iterative_max_modes: int = Field(default=2_048, ge=1)
+    block_size: int = Field(default=16_384, ge=128)
+    max_points: int | None = Field(default=None, ge=2)
     normalize_point_variance: bool = True
 
 
@@ -108,6 +113,14 @@ class RandomVariableConfig(FrozenModel):
     bounds: BoundsConfig | None = None
     seed: int | None = Field(default=None, ge=0)
 
+    @field_validator("property_kind", mode="before")
+    @classmethod
+    def accept_legacy_modulus_identifier(cls, value: object) -> object:
+        """Preserve compatibility with pre-publication JSON configurations."""
+        if isinstance(value, str) and value.casefold() == "youngs_modulus":
+            return PropertyKind.ELASTIC_MODULUS
+        return value
+
     @model_validator(mode="after")
     def validate_distribution_and_bounds(self) -> RandomVariableConfig:
         """Require bounds only for the truncated-normal implementation."""
@@ -115,6 +128,26 @@ class RandomVariableConfig(FrozenModel):
             raise ValueError("Truncated-normal fields require at least one physical bound.")
         if self.distribution is not DistributionKind.TRUNCATED_NORMAL and self.bounds is not None:
             raise ValueError("Bounds require distribution='truncated_normal' in Phase 3.")
+        definition = property_definition(self.property_kind)
+        if self.distribution not in definition.supported_distributions:
+            raise ValueError(
+                f"{self.distribution.value} is not supported for {definition.display_name}."
+            )
+        if not definition.value_is_valid(self.moments.mean):
+            raise ValueError(
+                f"{definition.display_name} mean must lie in {definition.interval_text}."
+            )
+        if self.bounds is not None:
+            if self.bounds.lower is not None and not definition.value_is_valid(self.bounds.lower):
+                raise ValueError(
+                    f"The lower bound for {definition.display_name} must lie in "
+                    f"{definition.interval_text}."
+                )
+            if self.bounds.upper is not None and not definition.value_is_valid(self.bounds.upper):
+                raise ValueError(
+                    f"The upper bound for {definition.display_name} must lie in "
+                    f"{definition.interval_text}."
+                )
         return self
 
 

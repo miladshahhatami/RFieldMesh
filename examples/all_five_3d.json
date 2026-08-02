@@ -1,0 +1,55 @@
+{
+  "source_path": "../validation/representative_models/3D-Model.inp",
+  "output_path": "../validation/output/3D-Model_Layer1_all_five.inp",
+  "part_name": "Layered Soil Quarter",
+  "set_name": "Layer1",
+  "instance_name": "Layered Soil Quarter-1",
+  "variables": [
+    {
+      "property_kind": "elastic_modulus",
+      "moments": {"mean": 50000000.0, "standard_deviation": 5000000.0, "unit_label": "Pa"},
+      "distribution": "lognormal",
+      "correlation": {"model": "exponential", "scales": [100.0, 100.0, 100.0]}
+    },
+    {
+      "property_kind": "density",
+      "moments": {"mean": 1950.0, "standard_deviation": 97.5, "unit_label": "kg/m^3"},
+      "distribution": "lognormal",
+      "correlation": {"model": "exponential", "scales": [100.0, 100.0, 100.0]}
+    },
+    {
+      "property_kind": "poissons_ratio",
+      "moments": {"mean": 0.35, "standard_deviation": 0.02, "unit_label": ""},
+      "distribution": "truncated_normal",
+      "bounds": {"lower": 0.05, "upper": 0.49},
+      "correlation": {"model": "exponential", "scales": [100.0, 100.0, 100.0]}
+    },
+    {
+      "property_kind": "friction_angle",
+      "moments": {"mean": 20.0, "standard_deviation": 2.0, "unit_label": "deg"},
+      "distribution": "truncated_normal",
+      "bounds": {"lower": 5.0, "upper": 40.0},
+      "correlation": {"model": "exponential", "scales": [100.0, 100.0, 100.0]}
+    },
+    {
+      "property_kind": "dilation_angle",
+      "moments": {"mean": 5.0, "standard_deviation": 1.0, "unit_label": "deg"},
+      "distribution": "truncated_normal",
+      "bounds": {"lower": 0.0, "upper": 15.0},
+      "correlation": {"model": "exponential", "scales": [100.0, 100.0, 100.0]}
+    }
+  ],
+  "first_seed": 1403,
+  "algorithm": "covariance_kl",
+  "mapping": "centroid_sample",
+  "covariance_kl": {
+    "retained_variance": 0.95,
+    "dense_memory_limit_mb": 128.0,
+    "iterative_memory_limit_mb": 512.0,
+    "iterative_max_modes": 512,
+    "block_size": 16384,
+    "normalize_point_variance": true
+  },
+  "name_prefix": "RFM",
+  "overwrite": false
+}

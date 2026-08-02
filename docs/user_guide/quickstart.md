@@ -33,14 +33,21 @@ rfieldmesh inspect model.inp
 
 ## Algorithm selection
 
-`Auto` selects the spectral route only for a complete, axis-aligned,
-structured 2D quadrilateral mesh with supported correlation. Other regions use
-dense covariance/KL subject to a resource safeguard.
+`Auto` selects the spectral route for a complete, axis-aligned, structured 2D
+quadrilateral mesh with supported correlation. Other regions use dense KL when
+its estimated workspace fits the configured budget and a matrix-free pivoted
+covariance factor otherwise.
 
-For large rotated, skewed, or unstructured regions, do not remove the KL
-safeguard and do not create statistically independent subregions unless that
-independence is part of the intended stochastic model. Consult
-`KNOWN_LIMITATIONS.md`.
+Large rotated, skewed, or unstructured regions have no fixed point cap, but
+their feasible retained rank remains memory- and time-dependent. Do not create
+statistically independent subregions unless that independence is part of the
+intended stochastic model. Consult `KNOWN_LIMITATIONS.md`.
+
+The Region and Variables tab provides Young's modulus, density, Poisson's
+ratio, friction angle, and dilation angle. Friction or dilation randomization
+is permitted only when the source material already contains one scalar
+`*Mohr Coulomb` row. When one member of a shared row is selected, the other is
+preserved exactly.
 
 ## Reproducibility
 

@@ -255,9 +255,15 @@ def _parse_materials(
             (candidate for candidate in child_tokens if candidate.keyword == "elastic"),
             None,
         )
+        mohr_coulomb_token = next(
+            (candidate for candidate in child_tokens if candidate.keyword == "mohr coulomb"),
+            None,
+        )
         density = None
         youngs_modulus = None
         poissons_ratio = None
+        friction_angle = None
+        dilation_angle = None
         if density_token is not None:
             density_values = _first_numeric_row(source, density_token)
             density = density_values[0]
@@ -268,6 +274,13 @@ def _parse_materials(
                     f"Material {name!r} does not contain isotropic E and Poisson ratio."
                 )
             youngs_modulus, poissons_ratio = elastic_values[:2]
+        if mohr_coulomb_token is not None:
+            mohr_coulomb_values = _first_numeric_row(source, mohr_coulomb_token)
+            if len(mohr_coulomb_values) < 2:
+                raise UnsupportedModelError(
+                    f"Material {name!r} does not contain scalar friction and dilation angles."
+                )
+            friction_angle, dilation_angle = mohr_coulomb_values[:2]
         final_token = child_tokens[-1] if child_tokens else token
         definition = MaterialDefinition(
             name=name,
@@ -276,9 +289,14 @@ def _parse_materials(
             material_token_index=token.index,
             density_token_index=None if density_token is None else density_token.index,
             elastic_token_index=None if elastic_token is None else elastic_token.index,
+            mohr_coulomb_token_index=(
+                None if mohr_coulomb_token is None else mohr_coulomb_token.index
+            ),
             density=density,
             youngs_modulus=youngs_modulus,
             poissons_ratio=poissons_ratio,
+            friction_angle=friction_angle,
+            dilation_angle=dilation_angle,
         )
         key = canonical_name(name)
         if key in definitions:

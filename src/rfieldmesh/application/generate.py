@@ -29,6 +29,7 @@ from rfieldmesh.config.enums import (
     PropertyKind,
 )
 from rfieldmesh.config.models import GenerationConfig, RandomVariableConfig
+from rfieldmesh.config.properties import property_definition, validate_property_values
 from rfieldmesh.exceptions import ConfigurationError, GeometryError, UnsafeWriteError
 from rfieldmesh.random_fields.covariance_kl import PreparedCovarianceKL
 from rfieldmesh.random_fields.marginals import apply_marginal
@@ -43,6 +44,7 @@ class FieldGeneration:
 
     property_kind: PropertyKind
     algorithm: GenerationAlgorithm
+    seed: int
     values: dict[int, float]
     statistics: FieldStatistics
     diagnostics: dict[str, Any]
@@ -83,7 +85,6 @@ def _resolve_algorithm(
     if (
         region.dimension == 2
         and variable.correlation.model is CorrelationKind.EXPONENTIAL
-        and variable.distribution is not DistributionKind.TRUNCATED_NORMAL
         and _try_structured(region)
     ):
         return GenerationAlgorithm.SPECTRAL
@@ -94,6 +95,8 @@ def generate_property_field(
     region: ResolvedRegion,
     variable: RandomVariableConfig,
     config: GenerationConfig,
+    *,
+    prepared_cache: dict[tuple[object, ...], object] | None = None,
 ) -> FieldGeneration:
     """Generate one field using the selected or automatically resolved algorithm."""
     root_seed = config.first_seed if variable.seed is None else variable.seed
@@ -110,25 +113,45 @@ def generate_property_field(
                 "The Phase 4 spectral method supports exponential correlation only."
             )
         structured = structured_region_2d(region)
-        spectral_mapping = (
-            MappingMethod.RECTANGULAR_GAUSSIAN_AVERAGE
-            if config.mapping is MappingMethod.AUTO
-            else config.mapping
+        if config.mapping is MappingMethod.AUTO:
+            spectral_mapping = (
+                MappingMethod.CENTROID_SAMPLE
+                if variable.distribution is DistributionKind.TRUNCATED_NORMAL
+                else MappingMethod.RECTANGULAR_GAUSSIAN_AVERAGE
+            )
+        else:
+            spectral_mapping = config.mapping
+        spectral_cache_key = (
+            "spectral",
+            variable.correlation,
+            spectral_mapping,
+            config.spectral,
         )
-        prepared = PreparedSpectralExponential2D.prepare(
-            structured.grid,
-            cast(tuple[float, float], variable.correlation.scales),
-            mapping=spectral_mapping,
-            config=config.spectral,
-        )
+        prepared = None if prepared_cache is None else prepared_cache.get(spectral_cache_key)
+        if prepared is None:
+            prepared = PreparedSpectralExponential2D.prepare(
+                structured.grid,
+                cast(tuple[float, float], variable.correlation.scales),
+                mapping=spectral_mapping,
+                config=config.spectral,
+            )
+            if prepared_cache is not None:
+                prepared_cache[spectral_cache_key] = prepared
+        prepared = cast(PreparedSpectralExponential2D, prepared)
         latent = prepared.generate(rng)
+        latent_values = latent.values
+        latent_variance = latent.latent_variance
+        if variable.distribution is DistributionKind.TRUNCATED_NORMAL:
+            latent_values = latent.values / np.sqrt(latent.latent_variance)
+            latent_variance = np.ones_like(latent.latent_variance)
         physical_grid = apply_marginal(
-            latent.values,
+            latent_values,
             variable.moments,
             variable.distribution,
             bounds=variable.bounds,
-            latent_variance=latent.latent_variance,
+            latent_variance=latent_variance,
         )
+        physical_grid = validate_property_values(variable.property_kind, physical_grid)
         values = {
             int(structured.labels[index]): float(physical_grid[index])
             for index in np.ndindex(structured.labels.shape)
@@ -138,11 +161,17 @@ def generate_property_field(
             raise ConfigurationError(
                 "Covariance/KL uses centroid sampling in the Phase 4 checkpoint."
             )
-        prepared_kl = PreparedCovarianceKL.prepare(
-            region.representative_coordinates,
-            variable.correlation,
-            config=config.covariance_kl,
-        )
+        kl_cache_key = ("covariance", variable.correlation, config.covariance_kl)
+        prepared_kl = None if prepared_cache is None else prepared_cache.get(kl_cache_key)
+        if prepared_kl is None:
+            prepared_kl = PreparedCovarianceKL.prepare(
+                region.representative_coordinates,
+                variable.correlation,
+                config=config.covariance_kl,
+            )
+            if prepared_cache is not None:
+                prepared_cache[kl_cache_key] = prepared_kl
+        prepared_kl = cast(PreparedCovarianceKL, prepared_kl)
         latent = prepared_kl.generate(rng)
         physical_values = apply_marginal(
             latent.values,
@@ -151,6 +180,7 @@ def generate_property_field(
             bounds=variable.bounds,
             latent_variance=latent.latent_variance,
         )
+        physical_values = validate_property_values(variable.property_kind, physical_values)
         values = {
             label: float(value)
             for label, value in zip(
@@ -168,6 +198,7 @@ def generate_property_field(
     return FieldGeneration(
         property_kind=variable.property_kind,
         algorithm=algorithm,
+        seed=root_seed,
         values=values,
         statistics=field_statistics(
             ordered_values,
@@ -175,6 +206,23 @@ def generate_property_field(
             target_standard_deviation=variable.moments.standard_deviation,
         ),
         diagnostics=_diagnostics_dict(latent.diagnostics),
+    )
+
+
+def generate_property_fields(
+    region: ResolvedRegion,
+    config: GenerationConfig,
+) -> tuple[FieldGeneration, ...]:
+    """Generate all configured independent fields while reusing numerical factors."""
+    prepared_cache: dict[tuple[object, ...], object] = {}
+    return tuple(
+        generate_property_field(
+            region,
+            variable,
+            config,
+            prepared_cache=prepared_cache,
+        )
+        for variable in config.variables
     )
 
 
@@ -239,23 +287,19 @@ def generate_model(config: GenerationConfig) -> GenerationResult:
         set_name=config.set_name,
         instance_name=config.instance_name,
     )
-    fields = tuple(
-        generate_property_field(region, variable, config) for variable in config.variables
-    )
+    fields = generate_property_fields(region, config)
     by_kind = {field.property_kind: field.values for field in fields}
     assignment = write_elementwise_materials(
         model,
         region,
         config.output_path,
-        youngs_modulus=by_kind.get(PropertyKind.YOUNGS_MODULUS),
-        density=by_kind.get(PropertyKind.DENSITY),
+        property_values=by_kind,
         name_prefix=config.name_prefix,
         overwrite=config.overwrite,
     )
     validation = validate_generated_output(
         assignment,
-        expected_youngs_modulus=by_kind.get(PropertyKind.YOUNGS_MODULUS),
-        expected_density=by_kind.get(PropertyKind.DENSITY),
+        expected_properties=by_kind,
     )
     serialized_config = config.model_dump(mode="json")
     serialized_config["source_path"] = Path(config.source_path).name
@@ -301,7 +345,11 @@ def generate_model(config: GenerationConfig) -> GenerationResult:
         "fields": [
             {
                 "property_kind": field.property_kind.value,
+                "display_name": property_definition(field.property_kind).display_name,
+                "abaqus_keyword": property_definition(field.property_kind).abaqus_keyword,
+                "abaqus_column": property_definition(field.property_kind).column_index,
                 "algorithm": field.algorithm.value,
+                "root_seed": field.seed,
                 "statistics": field.statistics.as_dict(),
                 "diagnostics": field.diagnostics,
                 "values_by_element": field.values,

@@ -1,0 +1,27 @@
+{
+  "access_right": "open",
+  "creators": [
+    {
+      "name": "Shah Hatami, Milad",
+      "type": "ProjectMember"
+    }
+  ],
+  "description": "RFieldMesh is an independent open-source scientific application for generating reproducible spatial random fields and assigning them safely to finite-element models. Version 1.0.0 provides spectral and covariance/Karhunen-Loeve simulation, physical-property marginal transformations, Abaqus input-file inspection and source-preserving rewriting, batch generation, offline visualization, a command-line interface, and a PySide6 desktop application.",
+  "keywords": [
+    "random fields",
+    "finite-element method",
+    "geotechnical engineering",
+    "spatial variability",
+    "uncertainty quantification",
+    "Abaqus",
+    "Karhunen-Loeve expansion",
+    "spectral representation"
+  ],
+  "language": "eng",
+  "license": "bsd-3-clause",
+  "notes": "RFieldMesh is independent software and is not affiliated with or endorsed by Dassault Systemes.",
+  "title": "RFieldMesh: Reproducible spatial random fields for finite-element meshes",
+  "upload_type": "software",
+  "version": "1.0.0"
+}
+

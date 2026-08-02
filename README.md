@@ -4,6 +4,8 @@ RFieldMesh is an independent open-source scientific application for generating
 reproducible spatial random fields and assigning them safely to finite-element
 models.
 
+![RFieldMesh random-field workflow](docs/assets/rfieldmesh-social-preview.png)
+
 The stable release provides a numerical Python API, Abaqus inspection and
 writing services, a command-line interface, offline interactive
 visualizations, deterministic batch generation, a five-tab desktop
@@ -21,6 +23,10 @@ application, and fail-closed native release validation.
 - first-order continuum-element eligibility filtering;
 - instance translation and axis-angle transformation;
 - complete source-material cloning with selective property replacement;
+- registry-driven randomization of Young's modulus, density, Poisson's ratio,
+  friction angle, and dilation angle;
+- column-aware preservation of companion values in `*Elastic` and
+  `*Mohr Coulomb` rows;
 - section-remainder handling for mixed-type and partial regions;
 - atomic model and manifest publication followed by independent reparsing;
 - unsaved previews using the production numerical path;
@@ -134,25 +140,33 @@ With `algorithm: "auto"`:
 - a complete axis-aligned 2D quadrilateral grid with exponential correlation
   uses the spectral method;
 - a general eligible 2D or 3D region uses covariance/KL, subject to its
-  method-specific resource safeguard.
+  automatic dense-memory estimate and scalable low-rank covariance path.
 
 With `mapping: "auto"`:
 
 - structured spectral generation uses analytical rectangular Gaussian
-  averaging;
+  averaging for normal/lognormal variables and centroid sampling for bounded
+  truncated-normal variables;
 - covariance/KL uses element representative-point sampling.
 
 Configured moments are point-scale physical-property moments. Local averaging
 reduces field variance. For non-Gaussian fields, configured correlation applies
 to the latent Gaussian field.
 
-Dense covariance/KL generation is intentionally limited to moderate point
-counts because its covariance storage grows quadratically and its
-eigendecomposition is substantially more expensive. The scalable spectral
-route currently requires a complete, axis-aligned, structured two-dimensional
-quadrilateral mesh. Consequently, large rotated, skewed, or unstructured
-domains are outside version 1.0.0's applicability range. See
+General-coordinate generation estimates dense workspace before allocation.
+When the configured dense-memory budget would be exceeded, RFieldMesh uses a
+matrix-free pivoted covariance factor whose residual-trace stopping rule
+enforces the requested retained-variance fraction. Capacity therefore depends
+on the retained variance, correlation scales, mode budget, available memory,
+and mesh size rather than a fixed element-count limit. See
 [`KNOWN_LIMITATIONS.md`](KNOWN_LIMITATIONS.md).
+
+The five-property examples are:
+
+```bash
+rfieldmesh generate examples/all_five_2d.json
+rfieldmesh generate examples/all_five_3d.json
+```
 
 ## Verification
 
@@ -170,8 +184,8 @@ Phase-specific validation:
 ```bash
 python scripts/validate_phase3.py
 python scripts/validate_phase4.py \
-  --model-2d /path/to/Job-1.inp \
-  --model-3d /path/to/Representative_3D_Model.inp
+  --model-2d validation/representative_models/2D-Model.inp \
+  --model-3d validation/representative_models/3D-Model.inp
 python scripts/validate_phase5.py \
   --model-2d /path/to/Job-1.inp \
   --model-3d /path/to/Representative_3D_Model.inp
@@ -215,12 +229,13 @@ same application version.
 - included content may be inspected, but generation is refused when
   `*INCLUDE` is present;
 - each configured region must inherit one unambiguous original section;
-- only scalar one-row `*Density` and isotropic one-row `*Elastic` properties
-  are modified;
-- dense covariance/KL generation is limited to moderate-sized regions;
+- only scalar one-row `*Density`, isotropic `*Elastic`, and `*Mohr Coulomb`
+  property rows without dependencies are modified;
+- scalable general-coordinate factorization remains low-rank and may stop with
+  a resource error when the requested variance cannot be retained within the
+  configured mode and memory budgets;
 - the spectral mapper requires a complete, axis-aligned, structured 2D
-  quadrilateral mesh, so large rotated, skewed, or unstructured regions are
-  not supported;
+  quadrilateral mesh;
 - general unstructured area/volume averaging is not implemented;
 - repeated-instance independent fields and distribution-based Abaqus
   assignments are deferred;
@@ -235,6 +250,9 @@ The complete applicability statement and planned extensions are maintained in
 Citation metadata is provided in [`CITATION.cff`](CITATION.cff). When a DOI is
 assigned to an archived release, cite the archived version and retain the
 software version used for the analysis.
+
+Publication-ready manuscript materials, highlights, release metadata, and the
+graphical abstract are available in [`docs/publication`](docs/publication).
 
 ## Contributing and security
 

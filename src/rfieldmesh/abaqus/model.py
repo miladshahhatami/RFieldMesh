@@ -10,6 +10,7 @@ from numpy.typing import NDArray
 
 from rfieldmesh.abaqus.source import AbaqusSource
 from rfieldmesh.abaqus.tokens import KeywordToken, canonical_name
+from rfieldmesh.config.enums import PropertyKind
 from rfieldmesh.exceptions import AbaqusParseError
 
 FloatArray = NDArray[np.float64]
@@ -96,7 +97,7 @@ class Instance:
 
 @dataclass(frozen=True, slots=True)
 class MaterialDefinition:
-    """One source material block and the property cards used by the MVP."""
+    """One source material block and supported scalar property cards."""
 
     name: str
     start: int
@@ -104,9 +105,31 @@ class MaterialDefinition:
     material_token_index: int
     density_token_index: int | None
     elastic_token_index: int | None
+    mohr_coulomb_token_index: int | None
     density: float | None
     youngs_modulus: float | None
     poissons_ratio: float | None
+    friction_angle: float | None
+    dilation_angle: float | None
+
+    def property_value(self, kind: PropertyKind) -> float | None:
+        """Return the source value of one registry property."""
+        values = {
+            PropertyKind.ELASTIC_MODULUS: self.youngs_modulus,
+            PropertyKind.DENSITY: self.density,
+            PropertyKind.POISSONS_RATIO: self.poissons_ratio,
+            PropertyKind.FRICTION_ANGLE: self.friction_angle,
+            PropertyKind.DILATION_ANGLE: self.dilation_angle,
+        }
+        return values[kind]
+
+    def property_token_index(self, kind: PropertyKind) -> int | None:
+        """Return the source keyword token containing one property."""
+        if kind is PropertyKind.DENSITY:
+            return self.density_token_index
+        if kind in (PropertyKind.ELASTIC_MODULUS, PropertyKind.POISSONS_RATIO):
+            return self.elastic_token_index
+        return self.mohr_coulomb_token_index
 
 
 @dataclass(frozen=True, slots=True)
