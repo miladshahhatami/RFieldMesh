@@ -52,3 +52,10 @@ No external GitHub, PyPI, or Zenodo publication is implied by the presence of
 these files. The publication checklist requires the maintainer to review
 metadata, rebuild native version `1.0.0` artifacts, publish them through the
 maintainer's accounts, and record the resulting URLs and DOI.
+
+
+## Update
+
+- Increased the default iterative covariance mode limit from 2,048 to
+  12,000, enabling high-rank covariance approximation for larger
+  unstructured three-dimensional meshes when sufficient memory is available.

@@ -75,3 +75,9 @@ accuracy safeguards.
 
 These limitations should be reported when they materially affect a published
 analysis.
+
+## Update
+
+- Increased the default iterative covariance mode limit from 2,048 to
+  12,000, enabling high-rank covariance approximation for larger
+  unstructured three-dimensional meshes when sufficient memory is available.
