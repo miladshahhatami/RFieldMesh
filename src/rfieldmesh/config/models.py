@@ -97,7 +97,7 @@ class KLConfig(FrozenModel):
     eigenvalue_tolerance: float = Field(default=1.0e-10, gt=0.0)
     dense_memory_limit_mb: float = Field(default=256.0, gt=1.0)
     iterative_memory_limit_mb: float = Field(default=1024.0, gt=1.0)
-    iterative_max_modes: int = Field(default=2_048, ge=1)
+    iterative_max_modes: int = Field(default=12_000, ge=1)
     block_size: int = Field(default=16_384, ge=128)
     max_points: int | None = Field(default=None, ge=2)
     normalize_point_variance: bool = True
