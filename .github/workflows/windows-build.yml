@@ -13,16 +13,13 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          cache: "pip"
-
+          cache: pip
       - name: Build and smoke-test desktop release
         shell: pwsh
         run: ./packaging/windows/build.ps1 -Python "python"
-
       - name: Upload Windows release
         uses: actions/upload-artifact@v4
         with:

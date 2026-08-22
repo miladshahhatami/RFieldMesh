@@ -6,9 +6,9 @@ version: 1.0.0
 date-released: 2026-07-25
 license: BSD-3-Clause
 abstract: >-
-  RFieldMesh generates reproducible spatial random fields and assigns them
-  safely to finite-element models through a Python API, command-line
-  interface, and desktop application.
+  RFieldMesh generates reproducible spatial random fields for six material
+  properties, including cohesion, and assigns them safely to finite-element
+  models through a Python API, command-line interface, and desktop application.
 keywords:
   - random fields
   - finite-element method

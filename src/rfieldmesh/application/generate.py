@@ -30,12 +30,19 @@ from rfieldmesh.config.enums import (
 )
 from rfieldmesh.config.models import GenerationConfig, RandomVariableConfig
 from rfieldmesh.config.properties import property_definition, validate_property_values
-from rfieldmesh.exceptions import ConfigurationError, GeometryError, UnsafeWriteError
+from rfieldmesh.exceptions import (
+    ComputationalBudgetError,
+    ConfigurationError,
+    GeometryError,
+    UnsafeWriteError,
+)
 from rfieldmesh.random_fields.covariance_kl import PreparedCovarianceKL
 from rfieldmesh.random_fields.marginals import apply_marginal
 from rfieldmesh.random_fields.rng import rng_for_realization
 from rfieldmesh.random_fields.spectral import PreparedSpectralExponential2D
 from rfieldmesh.random_fields.statistics import FieldStatistics, field_statistics
+
+_AUTO_CENTROID_RETAINED_VARIANCE = 0.995
 
 
 @dataclass(frozen=True, slots=True)
@@ -129,12 +136,35 @@ def generate_property_field(
         )
         prepared = None if prepared_cache is None else prepared_cache.get(spectral_cache_key)
         if prepared is None:
-            prepared = PreparedSpectralExponential2D.prepare(
-                structured.grid,
-                cast(tuple[float, float], variable.correlation.scales),
-                mapping=spectral_mapping,
-                config=config.spectral,
-            )
+            try:
+                prepared = PreparedSpectralExponential2D.prepare(
+                    structured.grid,
+                    cast(tuple[float, float], variable.correlation.scales),
+                    mapping=spectral_mapping,
+                    config=config.spectral,
+                )
+            except ComputationalBudgetError:
+                automatic_adjustment_allowed = (
+                    config.algorithm is GenerationAlgorithm.AUTO
+                    and spectral_mapping is MappingMethod.CENTROID_SAMPLE
+                    and config.spectral.legacy_relative_threshold is None
+                    and config.spectral.retained_variance > _AUTO_CENTROID_RETAINED_VARIANCE
+                )
+                if not automatic_adjustment_allowed:
+                    raise
+                adjusted_spectral = config.spectral.model_copy(
+                    update={
+                        "retained_variance": _AUTO_CENTROID_RETAINED_VARIANCE,
+                    }
+                )
+                prepared = PreparedSpectralExponential2D.prepare(
+                    structured.grid,
+                    cast(tuple[float, float], variable.correlation.scales),
+                    mapping=spectral_mapping,
+                    config=adjusted_spectral,
+                    requested_retained_variance=config.spectral.retained_variance,
+                    automatic_budget_adjustment=True,
+                )
             if prepared_cache is not None:
                 prepared_cache[spectral_cache_key] = prepared
         prepared = cast(PreparedSpectralExponential2D, prepared)

@@ -109,6 +109,16 @@ def _validate_cloneable_material(
                 f"required for {names}. The constitutive keyword will not be introduced "
                 "automatically."
             )
+        matching_tokens = [
+            token
+            for token in model.tokens
+            if material.start <= token.start < material.end and token.keyword == keyword
+        ]
+        if len(matching_tokens) != 1:
+            raise UnsupportedModelError(
+                f"Material {material.name!r} has {len(matching_tokens)} *{keyword.title()} "
+                "definitions; exactly one unambiguous property card is required."
+            )
         token = model.tokens[token_index]
         rows = _material_property_rows(model, token.index)
         if keyword == "elastic":
@@ -259,6 +269,7 @@ def write_elementwise_materials(
     poissons_ratio: Mapping[int, float] | None = None,
     friction_angle: Mapping[int, float] | None = None,
     dilation_angle: Mapping[int, float] | None = None,
+    cohesion: Mapping[int, float] | None = None,
     name_prefix: str = "RFM",
     overwrite: bool = False,
 ) -> AssignmentResult:
@@ -276,6 +287,7 @@ def write_elementwise_materials(
         PropertyKind.POISSONS_RATIO: poissons_ratio,
         PropertyKind.FRICTION_ANGLE: friction_angle,
         PropertyKind.DILATION_ANGLE: dilation_angle,
+        PropertyKind.COHESION: cohesion,
     }
     for kind, values in legacy.items():
         if values is None:

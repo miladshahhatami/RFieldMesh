@@ -92,9 +92,13 @@ def test_shared_keyword_companion_is_preserved(
     )
     validation = validate_generated_output(result, expected_properties={kind: values})
     assert preserved_kind.value in validation.preserved_properties
+    assert PropertyKind.COHESION.value in validation.preserved_properties
     generated = parse_abaqus_model(result.output_path)
     for material_name in result.generated_material_names.values():
         assert generated.material(material_name).property_value(preserved_kind) == preserved_value
+        assert generated.material(material_name).cohesion == 5000.0
+    generated_text = result.output_path.read_text(encoding="ascii")
+    assert generated_text.count("*Mohr Coulomb Hardening\n5000., 0.\n") == 3
 
 
 def test_mohr_coulomb_is_required_for_angle_randomization(

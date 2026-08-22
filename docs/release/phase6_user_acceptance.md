@@ -21,7 +21,7 @@ endpoint-protection warning.
    reports one part, two eligible `CPE4R` elements, one material, and no
    unsupported elements.
 4. Enable Young's modulus, density, Poisson's ratio, friction angle, and
-   dilation angle. Retain the documented means, choose
+   dilation angle, and cohesion. Retain the documented means, choose
    lognormal marginals, and set two positive correlation scales.
 5. Generate a preview. Confirm that the application remains responsive, the
    field and distribution views appear, and the reported values are positive

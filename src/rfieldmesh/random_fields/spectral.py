@@ -35,6 +35,10 @@ class SpectralDiagnostics:
     retained_point_variance: float
     coefficient_count: int
     selection_method: str
+    requested_directional_retained_variance: float
+    effective_directional_retained_variance: float
+    automatic_budget_adjustment: bool
+    coefficient_budget_compaction: bool
 
 
 def _unit_exponential_coefficients(
@@ -63,6 +67,8 @@ def _select_directional_modes(
     config: SpectralConfig,
     mapping: MappingMethod,
     minimum_cell_width: float,
+    *,
+    compact: bool = False,
 ) -> tuple[IntArray, FloatArray, str]:
     if config.legacy_relative_threshold is not None:
         cap = min(10_000, config.max_mode_cap)
@@ -72,6 +78,7 @@ def _select_directional_modes(
         return indices[keep], coefficients[keep], "legacy_relative_coefficient"
 
     cap = 8
+    previous_cap: int | None = None
     while True:
         indices = np.arange(-cap, cap + 1, dtype=np.int64)
         coefficients = _unit_exponential_coefficients(period, scale, indices)
@@ -91,11 +98,44 @@ def _select_directional_modes(
             retained_fraction = float(np.sum(coefficients))
             selection_method = "retained_point_variance"
         if retained_fraction >= config.retained_variance:
+            if compact and previous_cap is not None:
+                lower = previous_cap + 1
+                upper = cap
+                while lower < upper:
+                    candidate = (lower + upper) // 2
+                    candidate_indices = np.arange(-candidate, candidate + 1, dtype=np.int64)
+                    candidate_coefficients = _unit_exponential_coefficients(
+                        period,
+                        scale,
+                        candidate_indices,
+                    )
+                    if mapping is MappingMethod.RECTANGULAR_GAUSSIAN_AVERAGE:
+                        candidate_omega = 2.0 * math.pi * candidate_indices / period
+                        candidate_filter_squared = (
+                            np.sinc(candidate_omega * minimum_cell_width / (2.0 * math.pi)) ** 2
+                        )
+                        candidate_retained = float(
+                            np.sum(candidate_coefficients * candidate_filter_squared)
+                        ) / float(
+                            exponential_cell_average_variance_factor(
+                                minimum_cell_width,
+                                scale,
+                            )
+                        )
+                    else:
+                        candidate_retained = float(np.sum(candidate_coefficients))
+                    if candidate_retained >= config.retained_variance:
+                        upper = candidate
+                    else:
+                        lower = candidate + 1
+                indices = np.arange(-lower, lower + 1, dtype=np.int64)
+                coefficients = _unit_exponential_coefficients(period, scale, indices)
             return indices, coefficients, selection_method
         if cap >= config.max_mode_cap:
             raise ComputationalBudgetError(
                 "The requested retained spectral variance was not reached before max_mode_cap."
             )
+        previous_cap = cap
         cap = min(config.max_mode_cap, cap * 2)
 
 
@@ -140,6 +180,8 @@ class PreparedSpectralExponential2D:
         *,
         mapping: MappingMethod = MappingMethod.RECTANGULAR_GAUSSIAN_AVERAGE,
         config: SpectralConfig | None = None,
+        requested_retained_variance: float | None = None,
+        automatic_budget_adjustment: bool = False,
     ) -> PreparedSpectralExponential2D:
         """Prepare Fourier coefficients and the observation basis."""
         options = SpectralConfig() if config is None else config
@@ -163,6 +205,28 @@ class PreparedSpectralExponential2D:
             float(np.min(grid.z_widths)),
         )
         coefficient_count = int(x_indices.size * z_indices.size)
+        coefficient_budget_compaction = False
+        if coefficient_count > options.max_coefficient_count:
+            # The doubling search deliberately preserves historical mode sets when
+            # they fit. Compact only a set that would otherwise fail the budget.
+            x_indices, x_coefficients, selection_x = _select_directional_modes(
+                period_x,
+                scales[0],
+                options,
+                mapping,
+                float(np.min(grid.x_widths)),
+                compact=True,
+            )
+            z_indices, z_coefficients, selection_z = _select_directional_modes(
+                period_z,
+                scales[1],
+                options,
+                mapping,
+                float(np.min(grid.z_widths)),
+                compact=True,
+            )
+            coefficient_count = int(x_indices.size * z_indices.size)
+            coefficient_budget_compaction = True
         if coefficient_count > options.max_coefficient_count:
             raise ComputationalBudgetError(
                 f"The spectral coefficient matrix requires {coefficient_count:,} entries, "
@@ -211,6 +275,14 @@ class PreparedSpectralExponential2D:
             selection_method=(
                 selection_x if selection_x == selection_z else f"{selection_x}+{selection_z}"
             ),
+            requested_directional_retained_variance=(
+                options.retained_variance
+                if requested_retained_variance is None
+                else requested_retained_variance
+            ),
+            effective_directional_retained_variance=options.retained_variance,
+            automatic_budget_adjustment=automatic_budget_adjustment,
+            coefficient_budget_compaction=coefficient_budget_compaction,
         )
         return cls(
             grid=grid,

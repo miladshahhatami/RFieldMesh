@@ -28,4 +28,6 @@ def test_main_window_constructs_five_tab_workflow() -> None:
     assert window.tabs.tabText(4) == "5. Output and batch generation"
     assert window.youngs.isChecked()
     assert not window.density.isChecked()
+    assert window.cohesion.title() == "Cohesion (c)"
+    assert not window.cohesion.isChecked()
     window.close()

@@ -259,11 +259,20 @@ def _parse_materials(
             (candidate for candidate in child_tokens if candidate.keyword == "mohr coulomb"),
             None,
         )
+        mohr_coulomb_hardening_token = next(
+            (
+                candidate
+                for candidate in child_tokens
+                if candidate.keyword == "mohr coulomb hardening"
+            ),
+            None,
+        )
         density = None
         youngs_modulus = None
         poissons_ratio = None
         friction_angle = None
         dilation_angle = None
+        cohesion = None
         if density_token is not None:
             density_values = _first_numeric_row(source, density_token)
             density = density_values[0]
@@ -281,6 +290,13 @@ def _parse_materials(
                     f"Material {name!r} does not contain scalar friction and dilation angles."
                 )
             friction_angle, dilation_angle = mohr_coulomb_values[:2]
+        if mohr_coulomb_hardening_token is not None:
+            hardening_values = _first_numeric_row(source, mohr_coulomb_hardening_token)
+            if not hardening_values:
+                raise UnsupportedModelError(
+                    f"Material {name!r} does not contain a scalar cohesion value."
+                )
+            cohesion = hardening_values[0]
         final_token = child_tokens[-1] if child_tokens else token
         definition = MaterialDefinition(
             name=name,
@@ -292,11 +308,15 @@ def _parse_materials(
             mohr_coulomb_token_index=(
                 None if mohr_coulomb_token is None else mohr_coulomb_token.index
             ),
+            mohr_coulomb_hardening_token_index=(
+                None if mohr_coulomb_hardening_token is None else mohr_coulomb_hardening_token.index
+            ),
             density=density,
             youngs_modulus=youngs_modulus,
             poissons_ratio=poissons_ratio,
             friction_angle=friction_angle,
             dilation_angle=dilation_angle,
+            cohesion=cohesion,
         )
         key = canonical_name(name)
         if key in definitions:

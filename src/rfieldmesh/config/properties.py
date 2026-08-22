@@ -153,6 +153,23 @@ PROPERTY_REGISTRY: dict[PropertyKind, PropertyDefinition] = {
         default_lower=0.0,
         default_upper=89.999,
     ),
+    PropertyKind.COHESION: PropertyDefinition(
+        PropertyKind.COHESION,
+        "Cohesion",
+        "c",
+        "Abaqus model-consistent stress unit",
+        "mohr coulomb hardening",
+        0,
+        0.0,
+        None,
+        True,
+        False,
+        5000.0,
+        0.20,
+        "Pa",
+        DistributionKind.TRUNCATED_NORMAL,
+        default_lower=0.0,
+    ),
 }
 
 

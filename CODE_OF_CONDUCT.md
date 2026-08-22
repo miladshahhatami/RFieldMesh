@@ -1,15 +1,9 @@
 # Code of conduct
 
-Project participation must remain respectful, technically constructive, and
-free from harassment or discrimination. Contributors should critique methods
-and evidence rather than individuals, disclose relevant limitations, and avoid
-misrepresenting validation results.
+RFieldMesh contributors must communicate professionally, welcome constructive
+technical disagreement, and avoid harassment, discrimination, intimidation,
+or disclosure of another person's private information. Maintainers may edit,
+reject, or remove contributions and participation that violate these standards.
 
-Unacceptable conduct includes harassment, intimidation, discriminatory
-language, deliberate disclosure of private information, and knowingly false
-scientific or software claims. The maintainer may edit, reject, or remove
-contributions and restrict participation when necessary to protect the project
-and its participants.
-
-Concerns should be reported privately to the project maintainer. Reports will
-be reviewed impartially, with confidentiality preserved as far as practicable.
+Report conduct concerns privately to the maintainer. Reports will be reviewed
+in good faith, with confidentiality respected as far as practical.

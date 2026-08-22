@@ -1,7 +1,7 @@
 {
   "algorithm": "spectral",
   "first_seed": 1403,
-  "mapping": "rectangular_gaussian_average",
+  "mapping": "auto",
   "name_prefix": "RFM",
   "output_path": "C:/replace/generated_2d.inp",
   "overwrite": false,
@@ -10,6 +10,12 @@
   "seed_strategy": "linear",
   "set_name": "Set-1",
   "source_path": "C:/replace/Job-1.inp",
+  "spectral": {
+    "retained_variance": 0.995,
+    "padding_scale": 4.0,
+    "max_mode_cap": 100000,
+    "max_coefficient_count": 10000000
+  },
   "variables": [
     {
       "correlation": {
@@ -26,6 +32,40 @@
         "unit_label": "Pa"
       },
       "property_kind": "elastic_modulus"
+    },
+    {
+      "correlation": {"model": "exponential", "scales": [10.0, 1.0]},
+      "distribution": "lognormal",
+      "moments": {"mean": 1800.0, "standard_deviation": 90.0, "unit_label": "kg/m^3"},
+      "property_kind": "density"
+    },
+    {
+      "bounds": {"lower": 0.05, "upper": 0.49},
+      "correlation": {"model": "exponential", "scales": [10.0, 1.0]},
+      "distribution": "truncated_normal",
+      "moments": {"mean": 0.35, "standard_deviation": 0.02, "unit_label": ""},
+      "property_kind": "poissons_ratio"
+    },
+    {
+      "bounds": {"lower": 5.0, "upper": 45.0},
+      "correlation": {"model": "exponential", "scales": [10.0, 1.0]},
+      "distribution": "truncated_normal",
+      "moments": {"mean": 25.0, "standard_deviation": 2.5, "unit_label": "deg"},
+      "property_kind": "friction_angle"
+    },
+    {
+      "bounds": {"lower": 0.0, "upper": 15.0},
+      "correlation": {"model": "exponential", "scales": [10.0, 1.0]},
+      "distribution": "truncated_normal",
+      "moments": {"mean": 5.0, "standard_deviation": 1.0, "unit_label": "deg"},
+      "property_kind": "dilation_angle"
+    },
+    {
+      "bounds": {"lower": 0.0},
+      "correlation": {"model": "exponential", "scales": [10.0, 1.0]},
+      "distribution": "truncated_normal",
+      "moments": {"mean": 5000.0, "standard_deviation": 1000.0, "unit_label": "Pa"},
+      "property_kind": "cohesion"
     }
   ]
 }

@@ -37,6 +37,7 @@ def validate_generated_output(
     expected_poissons_ratio: Mapping[int, float] | None = None,
     expected_friction_angle: Mapping[int, float] | None = None,
     expected_dilation_angle: Mapping[int, float] | None = None,
+    expected_cohesion: Mapping[int, float] | None = None,
 ) -> OutputValidation:
     """Reparse a generated model and verify exact target coverage and properties."""
     expected: dict[PropertyKind, Mapping[int, float]] = {}
@@ -50,6 +51,7 @@ def validate_generated_output(
         PropertyKind.POISSONS_RATIO: expected_poissons_ratio,
         PropertyKind.FRICTION_ANGLE: expected_friction_angle,
         PropertyKind.DILATION_ANGLE: expected_dilation_angle,
+        PropertyKind.COHESION: expected_cohesion,
     }
     for kind, values in legacy.items():
         if values is not None:

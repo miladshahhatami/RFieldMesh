@@ -84,8 +84,18 @@ def _repository_item(repository, name, description):
 def _first_table_value(material, property_kind):
     if property_kind == "youngs_modulus":
         return float(material.elastic.table[0][0])
+    if property_kind == "elastic_modulus":
+        return float(material.elastic.table[0][0])
     if property_kind == "density":
         return float(material.density.table[0][0])
+    if property_kind == "poissons_ratio":
+        return float(material.elastic.table[0][1])
+    if property_kind == "friction_angle":
+        return float(material.mohrCoulombPlasticity.table[0][0])
+    if property_kind == "dilation_angle":
+        return float(material.mohrCoulombPlasticity.table[0][1])
+    if property_kind == "cohesion":
+        return float(material.mohrCoulombHardening.table[0][0])
     raise RuntimeError(f"Unsupported property kind in manifest: {property_kind}")
 
 

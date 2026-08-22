@@ -1,0 +1,50 @@
+{
+  "application_version": "1.0.0",
+  "environment": {
+    "platform": "Linux",
+    "python": "3.12.13"
+  },
+  "source_quality": {
+    "status": "passed",
+    "tests_passed": 98,
+    "tests_skipped": 1,
+    "coverage_percent": 72,
+    "ruff_lint": "passed",
+    "ruff_format": "passed",
+    "mypy": "passed",
+    "wheel_sdist_build": "passed"
+  },
+  "representative_models": [
+    {
+      "case": "2D-Model_all_six",
+      "source_sha256": "bdcf0f4997b95da80b88a28e90ddc1d59a5e2b48a73270520a6e9666c37ba1e3",
+      "output_sha256": "09a3147af2899741c52bfb17b2c97ae76659fe271e55547ad5703413cb8e829b",
+      "eligible_elements": 20000,
+      "remainder_elements": 0,
+      "algorithm": "spectral",
+      "runtime_seconds": 63.915,
+      "cohesion_source_value": 5000.0,
+      "cohesion_generated_minimum": 955.5672988309543,
+      "independent_reparse": "passed",
+      "legacy_fields_exactly_unchanged": true
+    },
+    {
+      "case": "3D-Model_Layer1_all_six",
+      "source_sha256": "ff605ff694c03a1644285c465139ef6042290482baa7b15a74a22370f1747454",
+      "output_sha256": "0d0bd69bb0ecfb16909888264fade8db12ed78c079dfa7e53f3ecf0323a8901c",
+      "eligible_elements": 10032,
+      "remainder_elements": 600,
+      "algorithm": "covariance_kl",
+      "runtime_seconds": 3.14,
+      "cohesion_source_value": 15000.0,
+      "cohesion_generated_minimum": 10315.825593292371,
+      "independent_reparse": "passed",
+      "legacy_fields_exactly_unchanged": true
+    }
+  ],
+  "native_checks": {
+    "windows_build": "not_run_linux_host",
+    "abaqus": "not_run_abaqus_unavailable",
+    "gui_runtime": "skipped_missing_libEGL.so.1"
+  }
+}

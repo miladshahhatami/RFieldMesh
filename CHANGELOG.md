@@ -4,8 +4,18 @@ All notable changes follow Semantic Versioning.
 
 ## 1.0.0 — Stable release
 
-- Extended the pre-publication stable code to five registry-defined material
+- Extended the pre-publication stable code to six registry-defined material
   properties while retaining version `1.0.0`.
+- Added nonnegative cohesion random fields mapped to the first value under
+  `*Mohr Coulomb Hardening` across the GUI, JSON CLI workflow, Python API,
+  preview, batch generation, manifests, writer, and independent verifier.
+- Added a dedicated cohesion random stream without changing the five existing
+  property streams, plus fail-closed handling of unsupported hardening cards.
+- Fixed automatic spectral generation for bounded centroid-sampled fields when
+  the default 0.99999 directional target cannot fit the mode budget. An
+  otherwise failing `auto` request retries at 0.995 per direction, records the
+  adjustment in diagnostics, and compacts power-of-two mode overshoot when
+  needed; explicitly selected spectral requests remain strict.
 - Added Poisson's ratio, friction-angle, and dilation-angle random fields to the
   GUI, JSON CLI workflow, Python API, Plotly reporting, writer, verifier, and
   provenance manifest.
@@ -14,7 +24,7 @@ All notable changes follow Semantic Versioning.
 - Replaced the fixed KL point cap with dense-memory estimation and a
   matrix-free pivoted covariance factor using a residual-trace variance rule.
 - Added full 20,000-element 2D and 10,032-eligible-element 3D regression models,
-  verified outputs, examples, performance evidence, and five-property tests.
+  verified outputs, examples, performance evidence, and six-property tests.
 - Added stable-release notes, a quick-start guide, a publication checklist,
   contribution guidance, security policy, code of conduct, and issue templates.
 - Documented the dense and scalable low-rank resource boundaries and the
@@ -72,10 +82,3 @@ All notable changes follow Semantic Versioning.
 - Added covariance/Karhunen–Loève simulation for irregular coordinates.
 - Added statistical summaries and MATLAB-reference regression tests.
 - Added an interactive Phase 3 validation-report generator.
-
-
-## Update
-
-- Increased the default iterative covariance mode limit from 2,048 to
-  12,000, enabling high-rank covariance approximation for larger
-  unstructured three-dimensional meshes when sufficient memory is available.

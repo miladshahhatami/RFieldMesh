@@ -1,20 +1,15 @@
 ## Summary
 
-Describe the scientific or software change and its intended user-visible
-effect.
+Describe the user-visible and scientific behavior changed.
 
 ## Validation
 
-- [ ] Unit and integration tests pass.
-- [ ] Ruff lint and format checks pass.
-- [ ] Strict mypy passes.
-- [ ] Numerical semantics and reproducibility implications are documented.
-- [ ] Abaqus writer changes were independently reparsed and, when applicable,
-      validated in Abaqus.
-- [ ] No proprietary models, credentials, personal paths, or unpublished data
-      are included.
+- [ ] Tests pass
+- [ ] Ruff lint and format checks pass
+- [ ] Mypy passes
+- [ ] Source/model preservation was checked where applicable
+- [ ] Native Windows or Abaqus claims include actual evidence
 
 ## Compatibility
 
-State whether configuration, RNG, numerical, Abaqus-writing, or packaging
-behavior changes.
+Describe configuration, RNG, manifest, Abaqus syntax, and packaging effects.

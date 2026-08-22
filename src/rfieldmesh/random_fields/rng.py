@@ -13,6 +13,7 @@ _PROPERTY_STREAM_CODES: dict[PropertyKind, int] = {
     PropertyKind.POISSONS_RATIO: 307,
     PropertyKind.FRICTION_ANGLE: 401,
     PropertyKind.DILATION_ANGLE: 503,
+    PropertyKind.COHESION: 601,
 }
 
 

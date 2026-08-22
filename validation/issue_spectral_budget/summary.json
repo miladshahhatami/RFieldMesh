@@ -1,0 +1,72 @@
+{
+  "application_version": "1.0.0",
+  "issue": "Automatic centroid spectral generation exceeded the configured mode budget",
+  "status": "passed",
+  "quality": {
+    "pytest": "101 passed, 1 skipped",
+    "coverage_percent": 73,
+    "ruff_lint": "passed",
+    "ruff_format": "passed",
+    "mypy_strict": "passed",
+    "wheel_and_sdist_build": "passed",
+    "installed_wheel_smoke": "passed"
+  },
+  "cohesion_only_2d": {
+    "eligible_elements": 20000,
+    "checked_properties": [
+      "cohesion"
+    ],
+    "requested_directional_retained_variance": 0.99999,
+    "effective_directional_retained_variance": 0.995,
+    "retained_point_variance": 0.9900260091865433,
+    "mode_counts": [
+      1135,
+      4377
+    ],
+    "coefficient_count": 4967895,
+    "generated_minimum": 949.7900324334287,
+    "generated_maximum": 8808.60520427025,
+    "independent_reparse": "passed"
+  },
+  "all_six_2d_gui_defaults": {
+    "eligible_elements": 20000,
+    "checked_properties": [
+      "elastic_modulus",
+      "density",
+      "poissons_ratio",
+      "friction_angle",
+      "dilation_angle",
+      "cohesion"
+    ],
+    "observation_averaged_fields_unchanged": [
+      "elastic_modulus",
+      "density"
+    ],
+    "automatically_adjusted_fields": [
+      "poissons_ratio",
+      "friction_angle",
+      "dilation_angle",
+      "cohesion"
+    ],
+    "output_sha256": "55f99ed25fe97d943d539a93b1406de9ee6802ba6a61fa045c237d315f1d7dc8",
+    "manifest_sha256": "fb5e65ba4ed54a1a305ef95c43a2c04b1b91ddea1c83ecf6ec372ee53dc1ac7e",
+    "independent_reparse": "passed"
+  },
+  "all_six_3d": {
+    "eligible_elements": 10032,
+    "excluded_and_preserved_elements": 600,
+    "algorithm": "covariance_kl",
+    "output_sha256": "0d0bd69bb0ecfb16909888264fade8db12ed78c079dfa7e53f3ecf0323a8901c",
+    "manifest_sha256": "8520473351ada6da38b69d7dc0a7f9d11be2647fda7f48e18dc28966b395477f",
+    "independent_reparse": "passed"
+  },
+  "source_models": {
+    "2d_sha256": "bdcf0f4997b95da80b88a28e90ddc1d59a5e2b48a73270520a6e9666c37ba1e3",
+    "3d_sha256": "ff605ff694c03a1644285c465139ef6042290482baa7b15a74a22370f1747454"
+  },
+  "native_checks": {
+    "gui_runtime": "skipped_missing_libEGL.so.1_on_linux",
+    "windows_executable": "not_built_on_linux",
+    "abaqus": "not_run_abaqus_unavailable"
+  }
+}

@@ -29,6 +29,10 @@ five-tab desktop GUI, offline Plotly reports, deterministic batch generation,
 source-preserving Abaqus input-file rewriting, a Windows one-folder package,
 and auditable scientific and native validation workflows.
 
+The six supported fields are Young's modulus, density, Poisson's ratio,
+friction angle, dilation angle, and cohesion. Cohesion maps to the first value
+under `*Mohr Coulomb Hardening` and uses its own deterministic stream.
+
 The release supports exponential and squared-exponential latent Gaussian
 correlation, normal, lognormal, and moment-fitted truncated-normal marginals,
 structured two-dimensional spectral simulation with analytical rectangular
