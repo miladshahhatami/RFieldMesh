@@ -1,0 +1,43 @@
+{
+  "application_version": "1.0.0",
+  "artifacts": {
+    "rfieldmesh-1.0.0-py3-none-any.whl": "7de079a2cd33066084bea783351b6fa6deba4c5dd06d12929c2a7e99da9594db",
+    "rfieldmesh-1.0.0.tar.gz": "1f04d51f1296233e9828cd563beb0fee921af74cf9c33a9aba10da33088700c5"
+  },
+  "checks": [
+    {
+      "check_id": "publication_inventory",
+      "details": "All Phase 8 publication files are present.",
+      "passed": true
+    },
+    {
+      "check_id": "distribution_inventory",
+      "details": "The wheel and source distribution are present.",
+      "passed": true
+    },
+    {
+      "check_id": "limitation_disclosure",
+      "details": "The large general-mesh limitation is disclosed in the manuscript.",
+      "passed": true
+    },
+    {
+      "check_id": "external_identifier_safety",
+      "details": "No repository URL or DOI was invented before external publication.",
+      "passed": true
+    },
+    {
+      "check_id": "stable_windows_provenance",
+      "details": "The tested release candidate is distinguished from the pending stable binary.",
+      "passed": true
+    }
+  ],
+  "executed_at_utc": "2026-07-26T09:25:34.575388+00:00",
+  "external_publication": {
+    "github": "pending_maintainer_authorization",
+    "stable_windows_archive": "pending_native_build_or_upload",
+    "zenodo": "pending_public_github_release"
+  },
+  "external_publication_status": "pending maintainer-authorized actions",
+  "preparation_ready": true,
+  "schema_version": "1.0"
+}

@@ -1,61 +1,43 @@
-# RFieldMesh 1.0.0 — stable release
+# RFieldMesh 1.0.0 — pre-submission release
 
-## Outcome
+RFieldMesh 1.0.0 generates independent, reproducible random fields for six
+Abaqus material properties: Young's modulus, density, Poisson's ratio,
+friction angle, dilation angle, and cohesion.
 
-Version 1.0.0 is the first stable, pre-publication release. Coauthor review was
-incorporated before public release without changing the version identifier.
+## Cohesion support
 
-## Stable capabilities
+- `cohesion` is available through the Python API, JSON CLI workflow, GUI,
+  previews, diagnostics, batch generation, manifests, writer, and verifier.
+- Cohesion is read from and written to the first numerical value in the first
+  data row under `*Mohr Coulomb Hardening`.
+- The writer clones the full source material, replaces only cohesion, and
+  preserves every companion value and unrelated keyword.
+- Cohesion is constrained to `c >= 0`; invalid generated values are rejected,
+  never clipped. Truncated normal with lower bound zero is the GUI default.
+- Cohesion has its own deterministic RNG stream. Existing configurations and
+  the five original streams remain backward compatible.
+- Missing, dependent, multiline, duplicate, and ambiguous hardening cards are
+  rejected before an output model is published.
 
-- reproducible Gaussian, lognormal, and truncated-normal spatial fields;
-- exponential and squared-exponential latent correlation models;
-- structured two-dimensional spectral simulation with rectangular local
-  averaging;
-- automatic dense KL or scalable matrix-free pivoted covariance simulation for
-  general-coordinate models, with trace-based variance retention;
-- independent random fields for Young's modulus, density, Poisson's ratio,
-  friction angle, and dilation angle;
-- column-aware `*Elastic` and `*Mohr Coulomb` updates with companion-value
-  preservation;
-- safe Abaqus inspection, region resolution, material cloning, section
-  assignment, manifest generation, and independent reparsing;
-- command-line inspection, preview, generation, batch, and release-audit
-  workflows;
-- self-contained Plotly visualization;
-- five-tab PySide6 desktop application with background execution and
-  cooperative cancellation;
-- reproducible Windows PyInstaller build assets and native validation
-  protocols.
+## Numerical and model scope
 
-## Validation basis
+The existing spectral, covariance/Karhunen–Loève, mapping, correlation,
+marginal, preview, and batch frameworks apply to cohesion without a separate
+numerical code path. Supported Abaqus element and material-layout boundaries
+are documented in `KNOWN_LIMITATIONS.md`.
 
-The source suite covers the numerical core, statistical behavior, MATLAB
-regression, Abaqus parsing and writing, desktop presentation state, batch
-generation, visualization, packaging, and fail-closed evidence auditing.
-Native Phase 6 validation was completed by the user on Windows and Abaqus
-before promotion. The stable source archive records that confirmation as a
-user attestation; it does not substitute invented machine-generated logs for
-evidence files that were not uploaded.
+Automatic spectral generation now recovers when the default directional
+retained-variance target is infeasible for a bounded centroid-sampled field:
+it retries at `0.995` per direction, records the requested and effective
+targets, and compacts mode-count overshoot. Explicit spectral requests remain
+strict, and the application version remains `1.0.0`.
 
-## Applicability boundary
+## Native validation status
 
-No fixed element-count cap is imposed. Feasibility remains conditional on the
-configured dense and low-rank memory budgets, requested retained variance,
-correlation scales, and available computational resources. See
-`KNOWN_LIMITATIONS.md` and
-`docs/publication/manuscript_limitations.md`.
+Source validation and Python distributions can be produced on Linux. A
+Windows executable must be built and smoke-tested on native Windows using
+`packaging/windows/build.ps1`. Abaqus import, datacheck, and analysis require a
+licensed Abaqus installation and are not implied by source-level reparsing.
 
-## Publication status
-
-This package is ready for repository, package-index, and archival publication.
-No external GitHub, PyPI, or Zenodo publication is implied by the presence of
-these files. The publication checklist requires the maintainer to review
-metadata, rebuild native version `1.0.0` artifacts, publish them through the
-maintainer's accounts, and record the resulting URLs and DOI.
-
-
-## Update
-
-- Increased the default iterative covariance mode limit from 2,048 to
-  12,000, enabling high-rank covariance approximation for larger
-  unstructured three-dimensional meshes when sufficient memory is available.
+The application and distribution version remains exactly `1.0.0` because this
+coauthor-requested enhancement precedes manuscript submission.

@@ -1,16 +1,10 @@
 # Security policy
 
-RFieldMesh processes local configuration and Abaqus input files and writes new
-files to user-selected locations. Treat models and generated manifests as
-potentially sensitive research artifacts.
+Please report suspected security or data-integrity problems privately to the
+maintainer before opening a public issue. Include the affected RFieldMesh
+version, operating system, minimal reproduction, and impact. Do not attach
+confidential Abaqus models, credentials, licence data, or personal information.
 
-Report suspected vulnerabilities privately to the project maintainer. Do not
-include confidential model content, credentials, access tokens, personal
-directories, or third-party proprietary files in a public issue.
-
-Version 1.0.x receives security and data-integrity corrections. Pre-release
-versions are not supported after the corresponding stable release.
-
-RFieldMesh does not require network access for normal generation or for
-self-contained HTML previews. A packaged application that unexpectedly
-requires a network connection should be treated as a defect.
+Version 1.0.0 is the supported release. Security fixes will be assessed with
+the same source-preservation, atomic-write, dependency, and packaging checks as
+other changes. This policy does not replace Abaqus licensing or vendor support.

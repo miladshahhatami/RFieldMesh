@@ -33,6 +33,14 @@ following:
 - rectangular elements aligned with the global coordinate axes;
 - exponential correlation for the implemented analytical spectrum.
 
+For bounded centroid-sampled fields on a supported structured mesh,
+`algorithm=auto` retries an otherwise infeasible spectral request at `0.995`
+retained variance per direction. The combined retained point variance is then
+approximately `0.990` or greater, and the adjustment is recorded in field and
+manifest diagnostics. This fallback does not apply when `algorithm=spectral`
+is selected explicitly. It also does not remove the coefficient-memory limit;
+an adjusted request that remains too large still fails before field allocation.
+
 Rotated, skewed, incomplete, and unstructured meshes use the scalable
 general-coordinate route. Independent subdivision of one physical domain is
 not an equivalent workaround because it removes cross-boundary spatial
@@ -51,11 +59,16 @@ accuracy safeguards.
   Unsupported types, including `AC3D8R`, are reported and preserved under their
   original assignment where section-remainder handling applies.
 - A configured region must inherit one unambiguous original solid section.
-- Only scalar, one-row `*Density`, isotropic `*Elastic`, and `*Mohr Coulomb`
-  rows without temperature, field, or dependency parameters are modified.
+- Only scalar, one-row `*Density`, isotropic `*Elastic`, `*Mohr Coulomb`, and
+  `*Mohr Coulomb Hardening` rows without temperature, field, or dependency
+  parameters are modified. For hardening, cohesion is the first value and all
+  companion columns are preserved.
 - The supported random variables are Young's modulus, density, Poisson's ratio,
-  friction angle, and dilation angle. RFieldMesh does not introduce a
-  `*Mohr Coulomb` model into a material that lacks that keyword.
+  friction angle, dilation angle, and cohesion. RFieldMesh does not introduce
+  `*Mohr Coulomb` or `*Mohr Coulomb Hardening` into a material that lacks the
+  required keyword.
+- Cohesion must be nonnegative. Generated negative values are rejected rather
+  than clipped; truncated normal with a lower bound of zero is the default.
 - The constitutive recommendation that dilation angle should generally not
   exceed friction angle is not silently enforced; users must define physically
   defensible joint bounds and review the generated fields.
@@ -75,9 +88,3 @@ accuracy safeguards.
 
 These limitations should be reported when they materially affect a published
 analysis.
-
-## Update
-
-- Increased the default iterative covariance mode limit from 2,048 to
-  12,000, enabling high-rank covariance approximation for larger
-  unstructured three-dimensional meshes when sufficient memory is available.

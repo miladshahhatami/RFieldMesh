@@ -17,6 +17,7 @@ class PropertyKind(StrEnum):
     POISSONS_RATIO = "poissons_ratio"
     FRICTION_ANGLE = "friction_angle"
     DILATION_ANGLE = "dilation_angle"
+    COHESION = "cohesion"
 
     @classmethod
     def _missing_(cls, value: object) -> "PropertyKind | None":

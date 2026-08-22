@@ -1,14 +1,9 @@
 # Contributing to RFieldMesh
 
-Contributions should preserve scientific traceability, deterministic behavior,
-and Abaqus source safety.
-
-## Development setup
+Use Python 3.12 or later and install the development extras:
 
 ```bash
-python3.12 -m venv .venv
-.venv/bin/python -m pip install --upgrade pip
-.venv/bin/python -m pip install -e ".[dev,desktop,packaging]"
+python -m pip install -e ".[dev,desktop,packaging]"
 ```
 
 Before proposing a change, run:
@@ -18,19 +13,13 @@ python -m pytest
 python -m ruff check .
 python -m ruff format --check .
 python -m mypy src
-python -m build
 ```
 
-Numerical changes require tests for deterministic seeds, target statistics,
-covariance behavior, and limiting cases. Abaqus-writing changes require
-source-preservation, independent-reparse, and golden or integration tests.
-Platform-specific claims require evidence from the corresponding native
-runtime.
+Scientific changes must include tests for numerical meaning, deterministic
+seeds, supported and rejected Abaqus syntax, source preservation, and output
+reparsing. Do not weaken fail-closed checks. Never commit private models,
+credentials, personal paths, virtual environments, caches, or generated build
+trees. Native Windows or Abaqus claims require corresponding machine evidence.
 
-Do not commit proprietary Abaqus models, unpublished research data, credentials,
-personal paths, or transient build environments. Use the redistributable
-fixtures or construct a minimal synthetic reproducer.
-
-Bug reports should identify the RFieldMesh version, operating system, Python or
-packaged-application route, selected algorithm and mapping, mesh type and size,
-and a minimal non-confidential input when possible.
+By contributing, you agree that your contribution is distributed under the
+project's BSD-3-Clause licence.

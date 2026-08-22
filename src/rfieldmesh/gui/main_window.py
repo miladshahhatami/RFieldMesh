@@ -223,11 +223,13 @@ class MainWindow(QMainWindow):
         self.poissons = VariablePanel(PropertyKind.POISSONS_RATIO, checked=False)
         self.friction = VariablePanel(PropertyKind.FRICTION_ANGLE, checked=False)
         self.dilation = VariablePanel(PropertyKind.DILATION_ANGLE, checked=False)
+        self.cohesion = VariablePanel(PropertyKind.COHESION, checked=False)
         variables.addWidget(self.youngs, 0, 0)
         variables.addWidget(self.density, 0, 1)
         variables.addWidget(self.poissons, 0, 2)
         variables.addWidget(self.friction, 1, 0)
         variables.addWidget(self.dilation, 1, 1)
+        variables.addWidget(self.cohesion, 1, 2)
         layout.addLayout(variables)
         layout.addStretch(1)
         self.tabs.addTab(tab, "2. Region and variables")
@@ -447,6 +449,7 @@ class MainWindow(QMainWindow):
             self.poissons.variable(),
             self.friction.variable(),
             self.dilation.variable(),
+            self.cohesion.variable(),
         ]
         variables = tuple(variable for variable in base if variable is not None)
         if not variables:
@@ -504,9 +507,12 @@ class MainWindow(QMainWindow):
         preview, rendered = cast(tuple[PreviewResult, str], result)
         assert isinstance(preview, PreviewResult)
         self.plot_view.set_html(str(rendered))
-        self.preview_status.setText(
-            f"{preview.eligible_count:,} eligible; {preview.excluded_count:,} excluded."
-        )
+        status = f"{preview.eligible_count:,} eligible; {preview.excluded_count:,} excluded."
+        if any(
+            field.diagnostics.get("automatic_budget_adjustment", False) for field in preview.fields
+        ):
+            status += " Automatic spectral budget adjustment applied."
+        self.preview_status.setText(status)
         self.preview_button.setEnabled(True)
         self.export_preview_button.setEnabled(True)
         self.statusBar().showMessage("Preview complete.")

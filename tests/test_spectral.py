@@ -62,6 +62,31 @@ def test_centroid_variance_equals_retained_point_variance() -> None:
     )
 
 
+def test_mode_selection_compacts_only_when_doubling_exceeds_budget() -> None:
+    historical = PreparedSpectralExponential2D.prepare(
+        make_grid(),
+        scales=(3.0, 1.0),
+        mapping=MappingMethod.CENTROID_SAMPLE,
+        config=SpectralConfig(retained_variance=0.99),
+    )
+    assert historical.diagnostics.mode_counts == (513, 513)
+    assert not historical.diagnostics.coefficient_budget_compaction
+
+    prepared = PreparedSpectralExponential2D.prepare(
+        make_grid(),
+        scales=(3.0, 1.0),
+        mapping=MappingMethod.CENTROID_SAMPLE,
+        config=SpectralConfig(
+            retained_variance=0.99,
+            max_coefficient_count=100_000,
+        ),
+    )
+    assert prepared.diagnostics.mode_counts == (271, 325)
+    assert prepared.diagnostics.coefficient_count == 88_075
+    assert prepared.diagnostics.coefficient_budget_compaction
+    assert all(retained >= 0.99 for retained in prepared.diagnostics.directional_retained_variance)
+
+
 @pytest.mark.statistical
 def test_empirical_variance_matches_reported_variance() -> None:
     grid = StructuredGrid2D(np.linspace(0.0, 2.0, 5), np.linspace(0.0, 1.0, 4))

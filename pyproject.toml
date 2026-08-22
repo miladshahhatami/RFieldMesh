@@ -78,15 +78,12 @@ include = [
   "/CITATION.cff",
   "/CODE_OF_CONDUCT.md",
   "/CONTRIBUTING.md",
-  "/ENHANCEMENT_HANDOFF.md",
   "/KNOWN_LIMITATIONS.md",
   "/LICENSE",
   "/README.md",
   "/RELEASE_NOTES_1.0.0.md",
-  "/RELEASE_NOTES_PHASE4.md",
-  "/RELEASE_NOTES_PHASE5.md",
-  "/RELEASE_NOTES_PHASE6.md",
   "/SECURITY.md",
+  "/.zenodo.json",
   "/.github",
   "/docs",
   "/examples",
@@ -100,11 +97,18 @@ include = [
   "/validation/abaqus",
   "/validation/representative_models",
   "/validation/V1.0.0_ENHANCEMENT_VALIDATION.md",
+  "/validation/SPECTRAL_BUDGET_FIX_VALIDATION.md",
+  "/validation/issue_spectral_budget/summary.json",
   "/validation/output/2D-Model_all_five.inp",
   "/validation/output/2D-Model_all_five.rfieldmesh.json",
   "/validation/output/3D-Model_Layer1_all_five.inp",
   "/validation/output/3D-Model_Layer1_all_five.rfieldmesh.json",
+  "/validation/output/2D-Model_all_six.inp",
+  "/validation/output/2D-Model_all_six.rfieldmesh.json",
+  "/validation/output/3D-Model_Layer1_all_six.inp",
+  "/validation/output/3D-Model_Layer1_all_six.rfieldmesh.json",
   "/validation/output/v1.0.0_enhancement_summary.json",
+  "/validation/output/v1.0.0_cohesion_summary.json",
   "/validation/release_candidate/templates",
   "/validation/stable_release/promotion_record.json",
   "/validation/output/phase3_validation_summary.json",
@@ -117,7 +121,6 @@ include = [
   "/validation/output/phase7_validation.html",
   "/validation/output/phase7_validation_summary.json",
 ]
-
 [tool.pytest.ini_options]
 addopts = "-ra --strict-markers"
 testpaths = ["tests"]

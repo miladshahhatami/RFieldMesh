@@ -6,8 +6,9 @@ clean Windows packaged-application operation, and completion of the requested
 native validation sequence.
 
 The scientific core was frozen during the original promotion. Before public
-release or manuscript submission, coauthor-requested five-property and
-large-mesh enhancements were incorporated while retaining version 1.0.0. The
+release or manuscript submission, coauthor-requested six-property (including
+cohesion) and large-mesh enhancements were incorporated while retaining
+version 1.0.0. The
 updated source requires a new Windows package and native Abaqus confirmation;
 earlier native evidence applies only to its recorded source state.
 

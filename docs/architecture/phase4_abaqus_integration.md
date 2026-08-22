@@ -68,8 +68,9 @@ The Phase 4 writer enforces the following conditions before mutation:
 
 The complete original material block is cloned for each target element.
 Each selected registry property is replaced in its exact Abaqus column.
-Unselected companion values in `*Elastic` and `*Mohr Coulomb`, together with
-damping, hardening, plasticity, and other material cards, remain unchanged.
+Unselected companion values in `*Elastic`, `*Mohr Coulomb`, and
+`*Mohr Coulomb Hardening`, together with damping, plasticity, and other
+material cards, remain unchanged.
 
 The output is written to a temporary file in the destination directory,
 flushed and synchronized, and then published by atomic replacement.
@@ -80,8 +81,9 @@ flushed and synchronized, and then published by atomic replacement.
 - A region must inherit one original material and section.
 - Repeated or recursively referenced element-set definitions are not yet
   resolved.
-- Scalar one-row density, isotropic elasticity, and Mohr–Coulomb angle data are
-  modified through the central five-property registry.
+- Scalar one-row density, isotropic elasticity, Mohr–Coulomb angle, and
+  Mohr–Coulomb hardening cohesion data are modified through the central
+  six-property registry.
 - Temperature dependence, field-variable dependence, engineering constants,
   and multiline material tables are rejected.
 - Instance-level independent fields for repeated instances remain deferred.

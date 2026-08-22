@@ -44,10 +44,12 @@ statistically independent subregions unless that independence is part of the
 intended stochastic model. Consult `KNOWN_LIMITATIONS.md`.
 
 The Region and Variables tab provides Young's modulus, density, Poisson's
-ratio, friction angle, and dilation angle. Friction or dilation randomization
-is permitted only when the source material already contains one scalar
-`*Mohr Coulomb` row. When one member of a shared row is selected, the other is
-preserved exactly.
+ratio, friction angle, dilation angle, and cohesion. Friction or dilation
+randomization requires one scalar `*Mohr Coulomb` row. Cohesion randomization
+requires one scalar `*Mohr Coulomb Hardening` data row and replaces its first
+value only. When one member of a shared or companion-valued row is selected,
+all other values are preserved exactly. Cohesion defaults to truncated normal
+with a nonnegative lower bound and model-consistent `Pa` as the example label.
 
 ## Reproducibility
 

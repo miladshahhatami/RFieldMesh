@@ -106,11 +106,13 @@ class MaterialDefinition:
     density_token_index: int | None
     elastic_token_index: int | None
     mohr_coulomb_token_index: int | None
+    mohr_coulomb_hardening_token_index: int | None
     density: float | None
     youngs_modulus: float | None
     poissons_ratio: float | None
     friction_angle: float | None
     dilation_angle: float | None
+    cohesion: float | None
 
     def property_value(self, kind: PropertyKind) -> float | None:
         """Return the source value of one registry property."""
@@ -120,6 +122,7 @@ class MaterialDefinition:
             PropertyKind.POISSONS_RATIO: self.poissons_ratio,
             PropertyKind.FRICTION_ANGLE: self.friction_angle,
             PropertyKind.DILATION_ANGLE: self.dilation_angle,
+            PropertyKind.COHESION: self.cohesion,
         }
         return values[kind]
 
@@ -129,6 +132,8 @@ class MaterialDefinition:
             return self.density_token_index
         if kind in (PropertyKind.ELASTIC_MODULUS, PropertyKind.POISSONS_RATIO):
             return self.elastic_token_index
+        if kind is PropertyKind.COHESION:
+            return self.mohr_coulomb_hardening_token_index
         return self.mohr_coulomb_token_index
 
 

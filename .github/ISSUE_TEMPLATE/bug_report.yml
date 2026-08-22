@@ -1,55 +1,26 @@
 name: Bug report
-description: Report a reproducible RFieldMesh defect
-title: "[Bug] "
+description: Report reproducible incorrect behavior
+title: "[Bug]: "
 labels: ["bug"]
 body:
+  - type: markdown
+    attributes:
+      value: Do not upload confidential Abaqus models or credentials.
   - type: input
     id: version
     attributes:
       label: RFieldMesh version
     validations:
       required: true
-  - type: dropdown
-    id: route
+  - type: textarea
+    id: description
     attributes:
-      label: Execution route
-      options:
-        - Windows packaged application
-        - Python desktop application
-        - Command-line interface
-        - Python API
+      label: Description and reproduction
     validations:
       required: true
   - type: textarea
     id: environment
     attributes:
-      label: Environment
-      description: Operating system, Abaqus version if relevant, and Python version.
+      label: Operating system and Python environment
     validations:
       required: true
-  - type: textarea
-    id: problem
-    attributes:
-      label: Observed behavior
-    validations:
-      required: true
-  - type: textarea
-    id: expected
-    attributes:
-      label: Expected behavior
-    validations:
-      required: true
-  - type: textarea
-    id: reproduce
-    attributes:
-      label: Minimal reproduction
-      description: Do not upload confidential or proprietary models.
-    validations:
-      required: true
-  - type: checkboxes
-    id: privacy
-    attributes:
-      label: Data check
-      options:
-        - label: I removed credentials, personal paths, and confidential model content.
-          required: true

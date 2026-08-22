@@ -24,9 +24,9 @@ application, and fail-closed native release validation.
 - instance translation and axis-angle transformation;
 - complete source-material cloning with selective property replacement;
 - registry-driven randomization of Young's modulus, density, Poisson's ratio,
-  friction angle, and dilation angle;
+  friction angle, dilation angle, and cohesion;
 - column-aware preservation of companion values in `*Elastic` and
-  `*Mohr Coulomb` rows;
+  `*Mohr Coulomb` rows, plus the hardening companion column beside cohesion;
 - section-remainder handling for mixed-type and partial regions;
 - atomic model and manifest publication followed by independent reparsing;
 - unsaved previews using the production numerical path;
@@ -149,6 +149,16 @@ With `mapping: "auto"`:
   truncated-normal variables;
 - covariance/KL uses element representative-point sampling.
 
+For structured two-dimensional bounded fields, `algorithm: "auto"` first tries
+the configured spectral retained-variance target without modification. If that
+centroid-sampled representation cannot fit the configured mode or coefficient
+budget, it retries at `0.995` per spatial direction (at least approximately
+`0.990` combined point variance), compacts mode-count overshoot, and records
+the requested and effective targets in the field diagnostics. Existing
+spectral cases that already fit retain their historical mode sets. Selecting
+`algorithm: "spectral"` explicitly disables this automatic adjustment and
+keeps the configured target strict.
+
 Configured moments are point-scale physical-property moments. Local averaging
 reduces field variance. For non-Gaussian fields, configured correlation applies
 to the latent Gaussian field.
@@ -161,12 +171,20 @@ on the retained variance, correlation scales, mode budget, available memory,
 and mesh size rather than a fixed element-count limit. See
 [`KNOWN_LIMITATIONS.md`](KNOWN_LIMITATIONS.md).
 
-The five-property examples are:
+The complete six-property examples are:
 
 ```bash
-rfieldmesh generate examples/all_five_2d.json
-rfieldmesh generate examples/all_five_3d.json
+rfieldmesh generate examples/all_six_2d.json
+rfieldmesh generate examples/all_six_3d.json
 ```
+
+Older five-property configurations remain valid and retain their original
+property-specific random streams. Cohesion uses the stable identifier
+`cohesion`, is nonnegative, and maps to the first value in the first data row
+under the resolved material's `*Mohr Coulomb Hardening` keyword. RFieldMesh
+changes only that value and preserves every companion value and unrelated
+material card. A missing, dependent, multiline, duplicate, or otherwise
+ambiguous hardening card is rejected rather than inferred.
 
 ## Verification
 

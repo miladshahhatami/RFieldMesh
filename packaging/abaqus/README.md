@@ -52,9 +52,12 @@ rfieldmesh generate validation\abaqus\small_explicit_generation.json
 ```
 
 The validator checks the generated-file checksum, native model import,
-element-set and section coverage, imported Young's-modulus and density values,
-section-remainder membership where applicable, and native job completion. It
-writes versioned evidence under `validation\release_candidate\evidence`.
+element-set and section coverage, all configured values among Young's modulus,
+density, Poisson's ratio, friction angle, dilation angle, and cohesion,
+section-remainder membership where applicable, and native job completion. The
+cohesion check reads `material.mohrCoulombHardening.table[0][0]` in the Abaqus
+kernel. It writes versioned evidence under
+`validation\release_candidate\evidence`.
 
 Do not edit a passing evidence file. If a defect is corrected or the
 application version changes, regenerate every affected native report.
